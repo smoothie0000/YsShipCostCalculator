@@ -43,7 +43,7 @@ class App(ctk.CTk):
         self.add_product_button = ctk.CTkButton(self.frame, text="添加新产品", font=ctk.CTkFont(size=16), command=self.add_product_row)
         self.add_product_button.grid(row=998, column=0, padx=10, pady=(10, 10), sticky="w")
 
-        self.shipping_cost_label = ctk.CTkLabel(self.frame, text="快递费用:\n极兔:\n韵达:\n", font=ctk.CTkFont(size=16))
+        self.shipping_cost_label = ctk.CTkLabel(self.frame, text="快递费用:", font=ctk.CTkFont(size=16))
         self.shipping_cost_label.grid(row=999, column=0, padx=10, pady=(35, 0), sticky="w")
 
         self.calculate_shipping_button = ctk.CTkButton(self.frame, text="运费计算", font=ctk.CTkFont(size=16), command=self.calculate_shipping_cost)
@@ -87,14 +87,14 @@ class App(ctk.CTk):
         row_widgets['button'] = calculate_button
 
         delete_button = ctk.CTkButton(self.frame, text="删除", font=ctk.CTkFont(size=16),
-                                      command=lambda rw=row_widgets: self.delete_row(rw))
+                                      command=lambda rw=row_widgets: self.delete_product_row(rw))
         delete_button.grid(row=self.next_row, column=6, padx=10, pady=(0, 10))
         row_widgets['delete'] = delete_button
 
         self.product_rows.append(row_widgets)
         self.next_row += 1
 
-    def delete_row(self, row_widgets):
+    def delete_product_row(self, row_widgets):
         # 删除界面上的组件
         for widget in row_widgets.values():
             if isinstance(widget, ctk.CTkBaseClass):
@@ -140,50 +140,104 @@ class App(ctk.CTk):
             widgets['size'].configure(text="输入有误")
             return 0
 
-    def calculate_debang_cost(self, total_volume, real_weight):
-        first_kg_cost = 0
+    def calculate_debang_cost(self, total_volume):
+        first_3kg_cost = 0
         over_per_kg_cost = 0
         if self.province_combobox.get() in ["江苏省", "浙江省", "上海市"]:
-            first_kg_cost = 7
+            first_3kg_cost = 7
             over_per_kg_cost = 1
         elif self.province_combobox.get() in ["广东省", "安徽省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "江西省", "山西省", "福建省"]:
-            first_kg_cost = 8
+            first_3kg_cost = 8
             over_per_kg_cost = 2
         elif self.province_combobox.get() in ["广西壮族自治区", "海南省", "云南省", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省"]:
-            first_kg_cost = 9
+            first_3kg_cost = 9
             over_per_kg_cost = 2.5
         elif self.province_combobox.get() in ["陕西省", "甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
-            first_kg_cost = 13
+            first_3kg_cost = 13
             over_per_kg_cost = 3
         elif self.province_combobox.get() in ["新疆维吾尔自治区", "西藏自治区"]:
-            first_kg_cost = 28
+            first_3kg_cost = 28
             over_per_kg_cost = 8
         
         ship_cost = 0
         volume_weight = total_volume / 12000
-        ship_weight = max(volume_weight, real_weight)
-        if ship_weight < 1:
-            ship_cost = first_kg_cost
+        if volume_weight < 3:
+            ship_cost = first_3kg_cost
         else:
-            ship_cost = first_kg_cost + over_per_kg_cost * (ship_weight - 1)
+            ship_cost = first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
 
         return ship_cost
 
+    def calculate_jitu_cost(self, total_volume):
+        smaller_than_half_kg_cost = 0
+        half_to_one_kg_cost = 0
+        one_to_two_kg_cost = 0
+        two_to_three_kg_cost = 0
+        over_per_kg_cost = 0
+        additional_cost = 0
+        if self.province_combobox.get() in ["江苏省", "浙江省", "上海市", "安徽省"]:
+            smaller_than_half_kg_cost = 2.3
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.7
+            two_to_three_kg_cost = 5
+            over_per_kg_cost = 1
+            if self.province_combobox.get() == "上海市":
+                additional_cost = 1
+        elif self.province_combobox.get() in ["福建省", "广东省", "江西省", "山东省", "河南省", "河北省", "天津市", "北京市", "湖南省", "湖北省"]:
+            smaller_than_half_kg_cost = 2.3
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.7
+            two_to_three_kg_cost = 5
+            over_per_kg_cost = 2
+            if self.province_combobox.get() == "北京市":
+                additional_cost = 1
+        elif self.province_combobox.get() in ["黑龙江省", "吉林省", "辽宁省", "云南省", "重庆市", "广西壮族自治区", "贵州省", "四川省", "山西省", "陕西省"]:
+            smaller_than_half_kg_cost = 2.3
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.7
+            two_to_three_kg_cost = 5
+            over_per_kg_cost = 3
+        elif self.province_combobox.get() in ["内蒙古自治区", "宁夏回族自治区", "青海省", "甘肃省", "海南省"]:
+            smaller_than_half_kg_cost = 3.5
+            half_to_one_kg_cost = 4
+            one_to_two_kg_cost = 8
+            two_to_three_kg_cost = 12
+            over_per_kg_cost = 4
+        elif self.province_combobox.get() in ["新疆维吾尔自治区", "西藏自治区"]:
+            smaller_than_half_kg_cost = 15
+            half_to_one_kg_cost = -1
+            one_to_two_kg_cost = -1
+            two_to_three_kg_cost = -1
+            over_per_kg_cost = -1
+
+        ship_cost = 0
+        volume_weight = total_volume / 8000
+
+
+
+    def calculate_kuaiyun_cost(self, total_volume):
+        pass
+
+    def calculate_youzheng_cost(self, total_volume):
+        pass
+
+    def calculate_yunda_cost(self, total_volume):
+        pass
 
     def calculate_shipping_cost(self):
         error_flag = False
         total_volume = 0
-        real_weight = 0
+        # real_weight = 0
         for widgets in self.product_rows:
             total_volume += self.calculate_volume(widgets)
             try:
                 weight = float(widgets['weight'].get())
                 count = float(widgets['count'].get())
-                real_weight += weight * count
+                # real_weight += weight * count
             except ValueError:
                 error_flag = True
 
-        debang_cost = self.calculate_debang_cost(total_volume, real_weight)
+        debang_cost = self.calculate_debang_cost(total_volume)
         jitu_cost = 0
         yunda_cost = 0
 
