@@ -117,18 +117,18 @@ class App(ctk.CTk):
 
             if product_type == "网格川字":
                 bi_volume = length * (width + 18) * (height + 4)
-                total_volume = int(single_volume + bi_volume)
+                total_volume = int(single_volume + divide * bi_volume)
             elif product_type == "网格九脚":
                 total_volume = int((5 * (count - 1) + 14) * length * width * height)
             elif product_type == "平板四脚":
                 bi_volume = length * (width + 13) * (height + 3)
-                total_volume = int(single_volume + bi_volume)
+                total_volume = int(single_volume + divide * bi_volume)
             elif product_type == "平板六脚":
                 bi_volume = length * (width + 13) * (height + 3)
-                total_volume = int(single_volume + bi_volume)
+                total_volume = int(single_volume + divide* bi_volume)
             elif product_type == "平板九脚":
                 bi_volume = length * (width + 18) * (height + 3)
-                total_volume = int(single_volume + bi_volume)
+                total_volume = int(single_volume + divide* bi_volume)
             else:
                 widgets['size'].configure(text="产品类型错误")
                 return 0
