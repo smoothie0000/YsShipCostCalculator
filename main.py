@@ -112,20 +112,22 @@ class App(ctk.CTk):
             reminder = count % 2
             divide = math.floor(count / 2)
             single_volume = reminder * (length * width * height)
-
             product_type = widgets['product'].get()
 
             if product_type == "网格川字":
                 bi_volume = length * (width + 18) * (height + 4)
                 total_volume = int(single_volume + divide * bi_volume)
             elif product_type == "网格九脚":
-                total_volume = int((5 * (count - 1) + 14) * length * width * height)
-            elif product_type == "平板四脚":
-                bi_volume = length * (width + 13) * (height + 3)
+                bi_volume = int((5 * (count - 1) + 14) * length * width * height)
                 total_volume = int(single_volume + divide * bi_volume)
-            elif product_type == "平板六脚":
+            elif product_type == "平板四脚" or product_type == "平板六脚":
                 bi_volume = length * (width + 13) * (height + 3)
-                total_volume = int(single_volume + divide* bi_volume)
+                if reminder == 0:
+                    total_volume = int(divide * bi_volume)
+                elif divide == 0:
+                    total_volume = int(single_volume)
+                else:
+                    total_volume = int(((n - 1) / 2 * length * (width + 13) * (height + 3)) + length * (width + 13) * height)
             elif product_type == "平板九脚":
                 bi_volume = length * (width + 18) * (height + 3)
                 total_volume = int(single_volume + divide* bi_volume)
@@ -155,13 +157,10 @@ class App(ctk.CTk):
         elif self.province_combobox.get() in ["陕西省", "甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
             first_3kg_cost = 13
             over_per_kg_cost = 3
-        elif self.province_combobox.get() in ["新疆维吾尔自治区", "西藏自治区"]:
-            first_3kg_cost = 28
-            over_per_kg_cost = 8
         
         ship_cost = 0
-        volume_weight = total_volume / 12000
-        if volume_weight < 3:
+        volume_weight = round(total_volume / 12000)
+        if volume_weight <= 3:
             ship_cost = first_3kg_cost
         else:
             ship_cost = first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
@@ -206,12 +205,7 @@ class App(ctk.CTk):
 
         volume_weight = total_volume / 8000
         ship_cost = additional_cost * volume_weight
-        if self.province_combobox.get() in ["新疆维吾尔自治区", "西藏自治区"]:
-            if volume_weight <= 0.5:
-                ship_cost = 15
-            else:
-                ship_cost = 15 * volume_weight
-        elif volume_weight <= 0.5:
+        if volume_weight <= 0.5:
             ship_cost += smaller_than_half_kg_cost
         elif volume_weight > 0.5 and volume_weight <= 1:
             ship_cost += half_to_one_kg_cost
@@ -220,6 +214,7 @@ class App(ctk.CTk):
         elif volume_weight > 2 and volume_weight <= 3:
             ship_cost += two_to_three_kg_cost
         else:
+            volume_weight = math.ceil(volume_weight)
             ship_cost = ship_cost + two_to_three_kg_cost + over_per_kg_cost * (volume_weight - 3)
         return round(ship_cost, 1)
 
@@ -254,12 +249,6 @@ class App(ctk.CTk):
             one_to_two_kg_cost = 6
             two_to_three_kg_cost = 6.5
             over_per_kg_cost = 4.5
-        elif self.province_combobox.get() in ["新疆维吾尔自治区", "西藏自治区"]:
-            smaller_than_half_kg_cost = 15
-            half_to_one_kg_cost = 15
-            one_to_two_kg_cost = 28
-            two_to_three_kg_cost = 41
-            over_per_kg_cost = 14
 
         ship_cost = 0
         volume_weight = total_volume / 8000
@@ -272,6 +261,7 @@ class App(ctk.CTk):
         elif volume_weight > 2 and volume_weight <= 3:
             ship_cost = two_to_three_kg_cost
         else:
+            volume_weight = math.ceil(volume_weight)
             ship_cost = first_kg_cost + over_per_kg_cost * (volume_weight - 1)
         return round(ship_cost, 1)
 
@@ -299,12 +289,9 @@ class App(ctk.CTk):
         elif self.province_combobox.get() in ["青海省"]:
             first_kg_cost = 12
             over_per_kg_cost = 10
-        elif self.province_combobox.get() in ["西藏自治区", "新疆维吾尔自治区"]:
-            first_kg_cost = 18
-            over_per_kg_cost = 21
         
         ship_cost = 0
-        volume_weight = total_volume / 12000
+        volume_weight = math.ceil(total_volume / 12000)
         if volume_weight <= 1:
             ship_cost = first_kg_cost
         else:
@@ -343,7 +330,6 @@ class App(ctk.CTk):
             "海南省": [320, 50],
             "青海省": [330, 50],
             "内蒙古自治区": [330, 50],
-            "新疆维吾尔自治区":  [550, 100],
             "西藏自治区": [-1, -1],
         }
         ship_cost = 0
@@ -397,22 +383,36 @@ class App(ctk.CTk):
         if cheapest_cost > kuaiyun_cost:
             cheapest_name = "快运"
             cheapest_cost = kuaiyun_cost
-        if cheapest_cost > youzheng_cost:
-            cheapest_name = "邮政"
-            cheapest_cost = youzheng_cost
+        if not youzheng_fail:
+            if cheapest_cost > youzheng_cost:
+                cheapest_name = "邮政"
+                cheapest_cost = youzheng_cost
 
-        self.shipping_cost_label.configure(
-            text=(
-                f"快递费用:\n"
-                f"德邦: {debang_cost} 元\n"
-                f"极兔: {jitu_cost} 元\n"
-                f"韵达: {yunda_cost} 元\n"
-                f"邮政: {youzheng_cost} 元\n"
-                f"快运(顺心捷达/壹米滴答): {kuaiyun_cost} 元\n\n"
-                f"最便宜为: {cheapest_name} {cheapest_cost} 元"
+        if not youzheng_fail:
+            self.shipping_cost_label.configure(
+                text=(
+                    f"快递费用:\n"
+                    f"德邦: {debang_cost} 元\n"
+                    f"极兔: {jitu_cost} 元\n"
+                    f"韵达: {yunda_cost} 元\n"
+                    f"邮政: {youzheng_cost} 元\n"
+                    f"快运(顺心捷达/壹米滴答): {kuaiyun_cost} 元\n\n"
+                    f"最便宜为: {cheapest_name} {cheapest_cost} 元"
+                )
             )
-        )
-        
+        else:
+            self.shipping_cost_label.configure(
+                text=(
+                    f"快递费用:\n"
+                    f"德邦: {debang_cost} 元\n"
+                    f"极兔: {jitu_cost} 元\n"
+                    f"韵达: {yunda_cost} 元\n"
+                    f"邮政: {youzheng_cost} \n"
+                    f"快运(顺心捷达/壹米滴答): {kuaiyun_cost} 元\n\n"
+                    f"最便宜为: {cheapest_name} {cheapest_cost} 元"
+                )
+            )
+
 
 if __name__ == "__main__":
     app = App()
