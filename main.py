@@ -11,6 +11,7 @@ class App(ctk.CTk):
 
         self.title("杨神快递费计算器")
         self.geometry("1000x800")
+        self.wm_attributes("-topmost", True)
 
         # 标题
         title_label = ctk.CTkLabel(self, text="杨神快递费计算器", font=ctk.CTkFont(size=22, weight="bold"))
@@ -109,6 +110,10 @@ class App(ctk.CTk):
             width = float(widgets['width'].get())
             height = float(widgets['height'].get())
 
+            total_length = 0
+            total_width = 0
+            total_height = 0
+
             reminder = count % 2
             divide = math.floor(count / 2)
             single_volume = reminder * (length * width * height)
@@ -116,31 +121,74 @@ class App(ctk.CTk):
 
             if product_type == "网格川字":
                 bi_volume = length * (width + 18) * (height + 4)
-                total_volume = int(single_volume + divide * bi_volume)
+                if count == 1:
+                    total_length = length
+                    total_width = width
+                    total_height = height
+                elif reminder == 0:
+                    total_length = length
+                    total_width = width + 18
+                    total_height = divide * (height + 4)
+                else:
+                    total_length = length
+                    total_width = width + 18
+                    total_height = divide * (height + 4) + height
+                total_volume = int(total_length * total_width * total_height)
             elif product_type == "网格九脚":
-                bi_volume = int((5 * (count - 1) + 14) * length * width * height)
-                total_volume = int(single_volume + divide * bi_volume)
+                if count == 1:
+                    total_length = length
+                    total_width = width
+                    total_height = height
+                else:
+                    total_length = length
+                    total_width = width
+                    total_height = 5 * (count - 1) + 14
+                total_volume = int(total_length * total_width * total_height)
             elif product_type == "平板四脚" or product_type == "平板六脚":
                 bi_volume = length * (width + 13) * (height + 3)
-                if reminder == 0:
-                    total_volume = int(divide * bi_volume)
-                elif divide == 0:
-                    total_volume = int(single_volume)
+                if count == 1:
+                    total_length = length
+                    total_width = width
+                    total_height = height
+                elif reminder == 0:
+                    total_length = length
+                    total_width = width + 13
+                    total_height = divide * (height + 3)
                 else:
-                    total_volume = int(((n - 1) / 2 * length * (width + 13) * (height + 3)) + length * (width + 13) * height)
+                    total_length = length
+                    total_width = width + 13
+                    total_height = divide * (height + 3) + height
+                total_volume = int(total_length * total_width * total_height)
             elif product_type == "平板九脚":
                 bi_volume = length * (width + 18) * (height + 3)
-                total_volume = int(single_volume + divide* bi_volume)
+                if count == 1:
+                    total_length = length
+                    total_width = width
+                    total_height = height
+                elif reminder == 0:
+                    total_length = length
+                    total_width = width + 18
+                    total_height = divide * (height + 3)
+                else:
+                    total_length = length
+                    total_width = divide * (width + 18)
+                    total_height = divide * (height + 3) + height
+                total_volume = int(total_length * total_width * total_height)
+            elif product_type == "圆孔垫板":
+                total_length = length
+                total_width = width
+                total_height = count * height
+                total_volume = int(total_length * total_width * total_height)
             else:
                 widgets['size'].configure(text="产品类型错误")
-                return 0
+                return 0, 0, 0, 0
 
-            widgets['size'].configure(text=f"{total_volume} cm³")
-            return total_volume
+            widgets['size'].configure(text=f"{total_length} * {total_width} * {total_height} = {total_volume} cm³")
+            return total_volume, total_length, total_width, total_height
 
         except ValueError:
             widgets['size'].configure(text="输入有误")
-            return 0
+            return 0, 0, 0, 0
 
     def calculate_debang_cost(self, total_volume):
         first_3kg_cost = 0
@@ -345,7 +393,8 @@ class App(ctk.CTk):
         total_volume = 0
         # real_weight = 0
         for widgets in self.product_rows:
-            total_volume += self.calculate_volume(widgets)
+            _total_volume, total_length, total_width, total_height = self.calculate_volume(widgets)
+            total_volume += _total_volume
             try:
                 # weight = float(widgets['weight'].get())
                 count = float(widgets['count'].get())
@@ -361,10 +410,11 @@ class App(ctk.CTk):
 
         youzheng_fail = False
         for widgets in self.product_rows:
+            _, total_length, total_width, total_height = self.calculate_volume(widgets)
             length = float(widgets['length'].get())
             width = float(widgets['width'].get())
             height = float(widgets['height'].get())
-            if length > 90 or width > 90 or height > 90:
+            if total_length > 90 or total_width > 90 or total_height > 90:
                 youzheng_fail = True
                 break
         if youzheng_fail:
