@@ -112,6 +112,8 @@ class App(ctk.CTk):
                     cost = self.calculate_jitu_cost(total_volume)
                 elif self.delivery_combobox.get() == '韵达':
                     cost = self.calculate_yunda_cost(total_volume)
+                elif self.delivery_combobox.get() == '中通':
+                    cost = self.calculate_zhongtong_cost(total_volume)
                 elif self.delivery_combobox.get() == '邮政':
                     cost = self.calculate_youzheng_cost(total_volume)
                 elif self.delivery_combobox.get() == '快运（顺心捷达/壹米滴答）':
@@ -411,6 +413,83 @@ class App(ctk.CTk):
             volume_weight = math.ceil(volume_weight)
             ship_cost = first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
         return round(ship_cost, 1)
+    
+    def calculate_zhongtong_cost(self, total_volume):
+        smaller_than_half_kg_cost = 0
+        half_to_one_kg_cost = 0
+        one_to_two_kg_cost = 0
+        two_to_three_kg_cost = 0
+        over_per_kg_cost = 0
+        first_3kg_cost = 0
+        additional_cost = 0
+        calculate_with_volume = False
+        price_per_square_meter = 0
+        price_calculate_with_volume_fixed = 0
+        if self.province_combobox.get() in ["江苏省", "浙江省", "安徽省"]:
+            smaller_than_half_kg_cost = 2.3
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.5
+            two_to_three_kg_cost = 5
+            over_per_kg_cost = 1.5
+            first_3kg_cost = 5
+        elif self.province_combobox.get() in ["河北省", "天津市", "河南省", "湖南省", "湖北省", "山东省", "广东省", "江西省", "福建省"]:
+            smaller_than_half_kg_cost = 2.3
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.5
+            two_to_three_kg_cost = 5
+            calculate_with_volume = True
+            price_per_square_meter = 150
+            price_calculate_with_volume_fixed = 5
+        elif self.province_combobox.get() in ["山西省", "陕西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
+            smaller_than_half_kg_cost = 2.3
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.5
+            two_to_three_kg_cost = 5
+            calculate_with_volume = True
+            price_per_square_meter = 150
+            price_calculate_with_volume_fixed = 5
+        elif self.province_combobox.get() in ["内蒙古自治区", "甘肃省", "青海省", "宁夏回族自治区", "海南省"]:
+            smaller_than_half_kg_cost = 3.5
+            half_to_one_kg_cost = 4
+            one_to_two_kg_cost = 5
+            two_to_three_kg_cost = 6
+            calculate_with_volume = True
+            price_per_square_meter = 500
+            price_calculate_with_volume_fixed = 0
+        elif self.province_combobox.get() in ["北京市"]:
+            smaller_than_half_kg_cost = 3
+            half_to_one_kg_cost = 4
+            one_to_two_kg_cost = 5
+            two_to_three_kg_cost = 6.5
+            additional_cost = 1.5
+            calculate_with_volume = True
+            price_per_square_meter = 150
+            price_calculate_with_volume_fixed = 5.5
+        elif self.province_combobox.get() in ["上海市"]:
+            smaller_than_half_kg_cost = 3
+            half_to_one_kg_cost = 4
+            one_to_two_kg_cost = 5
+            two_to_three_kg_cost = 5.5
+            over_per_kg_cost = 1.5
+            first_3kg_cost = 5.5
+            additional_cost = 0.5
+
+        ship_cost = additional_cost
+        volume_weight = total_volume / 10000
+        if volume_weight <= 0.5:
+            ship_cost += smaller_than_half_kg_cost
+        elif volume_weight > 0.5 and volume_weight <= 1:
+            ship_cost += half_to_one_kg_cost
+        elif volume_weight > 1 and volume_weight <= 2:
+            ship_cost += one_to_two_kg_cost
+        elif volume_weight > 2 and volume_weight <= 3:
+            ship_cost += two_to_three_kg_cost
+        elif volume_weight > 3 and calculate_with_volume:
+            ship_cost += price_calculate_with_volume_fixed + price_per_square_meter * math.ceil(volume_weight) / 100
+        else:
+            ship_cost += first_3kg_cost + over_per_kg_cost * (math.ceil(volume_weight) - 3)
+
+        return round(ship_cost, 1)
 
     def calculate_youzheng_cost(self, total_volume):
         first_kg_cost = 0
@@ -505,6 +584,7 @@ class App(ctk.CTk):
         debang_cost = self.calculate_debang_cost(total_volume)
         jitu_cost = self.calculate_jitu_cost(total_volume)
         yunda_cost = self.calculate_yunda_cost(total_volume)
+        zhongtong_cost = self.calculate_zhongtong_cost(total_volume)
         kuaiyun_cost = self.calculate_kuaiyun_cost(total_volume)
 
         youzheng_fail = False
@@ -532,6 +612,9 @@ class App(ctk.CTk):
         if cheapest_cost > kuaiyun_cost:
             cheapest_name = "快运"
             cheapest_cost = kuaiyun_cost
+        if cheapest_cost > zhongtong_cost:
+            cheapest_name = "中通"
+            cheapest_cost = zhongtong_cost
         if not youzheng_fail:
             if cheapest_cost > youzheng_cost:
                 cheapest_name = "邮政"
@@ -544,6 +627,7 @@ class App(ctk.CTk):
                     f"德邦: {debang_cost} 元\n"
                     f"极兔: {jitu_cost} 元\n"
                     f"韵达: {yunda_cost} 元\n"
+                    f"中通: {zhongtong_cost} 元\n"
                     f"邮政: {youzheng_cost} 元\n"
                     f"快运(顺心捷达/壹米滴答): {kuaiyun_cost} 元\n\n"
                     f"最便宜为: {cheapest_name} {cheapest_cost} 元"
@@ -556,6 +640,7 @@ class App(ctk.CTk):
                     f"德邦: {debang_cost} 元\n"
                     f"极兔: {jitu_cost} 元\n"
                     f"韵达: {yunda_cost} 元\n"
+                    f"中通: {zhongtong_cost} 元\n"
                     f"邮政: {youzheng_cost} \n"
                     f"快运(顺心捷达/壹米滴答): {kuaiyun_cost} 元\n\n"
                     f"最便宜为: {cheapest_name} {cheapest_cost} 元"
