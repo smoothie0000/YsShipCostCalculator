@@ -1,6 +1,10 @@
+import os
 import math
 import customtkinter as ctk
 import constants
+from datetime import datetime
+from tkinter import filedialog
+from openpyxl import load_workbook, Workbook
 
 class App(ctk.CTk):
     def __init__(self):
@@ -49,6 +53,78 @@ class App(ctk.CTk):
 
         self.calculate_shipping_button = ctk.CTkButton(self.frame, text="运费计算", font=ctk.CTkFont(size=16), command=self.calculate_shipping_cost)
         self.calculate_shipping_button.grid(row=1000, column=0, padx=10, pady=(0, 10), sticky="w")
+
+        # 录入excel
+        self.select_deliveru_entry_label = ctk.CTkLabel(self.frame, text="选择快递录入", font=ctk.CTkFont(size=24), anchor="w", justify="left")
+        self.select_deliveru_entry_label.grid(row=1002, column=0, padx=10, pady=(35, 10), sticky="w")
+
+        self.delivery_combobox = ctk.CTkComboBox(self.frame, values=constants.delivery_types, width=150)
+        self.delivery_combobox.set("德邦")
+        self.delivery_combobox.grid(row=1003, column=0, padx=10, pady=(0, 10), sticky="w")
+
+        self.excel_path_label = ctk.CTkLabel(self.frame, text="Excel文件路径:", font=ctk.CTkFont(size=16), anchor="w", justify="left")
+        self.excel_path_label.grid(row=1004, column=0, padx=10, pady=(5, 10), sticky="w")
+
+        self.file_path_entry = ctk.CTkEntry(self.frame, width=550)
+        self.file_path_entry.grid(row=1005, column=0, columnspan=3, padx=10, pady=(0, 10), sticky="w")
+
+        self.select_button = ctk.CTkButton(self.frame, font=ctk.CTkFont(size=16), text="选择文件",command=self.select_files)
+        self.select_button.grid(row=1005, column=3, padx=10, pady=(0, 10), sticky="w")
+
+        self.confirm_button = ctk.CTkButton(self.frame, font=ctk.CTkFont(size=16), text="确定录入",command=self.confirm_entry)
+        self.confirm_button.grid(row=1006, column=0, padx=10, pady=(0, 10), sticky="w")
+
+        self.result_label = ctk.CTkLabel(self.frame, text="", font=ctk.CTkFont(size=16), anchor="w", justify="left")
+        self.result_label.grid(row=1007, column=0, padx=10, pady=(5, 10), sticky="w")
+
+    def select_files(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
+        if file_path:
+            self.select_file = file_path
+            self.file_path_entry.delete(0, ctk.END)
+            self.file_path_entry.insert(0,file_path)
+
+    def confirm_entry(self):
+        if not self.select_file:
+            self.result_label.configure(text="请选择Excel文件路径", text_color="red")
+            return
+
+        try:
+            if not os.path.exists(self.select_file):
+                wb = Workbook()
+                ws = wb.active
+            else:
+                wb = load_workbook(self.select_file)
+                ws = wb.active
+
+            if ws.max_row == 1 and all([cell.value is None for cell in ws[1]]):
+                ws.append(["录入时间", "快递", "快递价格(元)", "产品类型", "数量(个)", "长(cm)", "宽(cm)", "高(cm)", "总体积(cm³)"])
+
+            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            for product in self.product_rows:
+                total_volume, total_length, total_width, total_height = self.calculate_volume(product)
+                product_type = product['product'].get() + "(多个不同规格产品一起邮寄，请手动检查体积是否正确)"
+                count = float(product['count'].get())
+                cost = 0
+                if self.delivery_combobox.get() == '德邦':
+                    cost = self.calculate_debang_cost(total_volume)
+                elif self.delivery_combobox.get() == '极兔':
+                    cost = self.calculate_jitu_cost(total_volume)
+                elif self.delivery_combobox.get() == '韵达':
+                    cost = self.calculate_yunda_cost(total_volume)
+                elif self.delivery_combobox.get() == '邮政':
+                    cost = self.calculate_youzheng_cost(total_volume)
+                elif self.delivery_combobox.get() == '快运（顺心捷达/壹米滴答）':
+                    cost = self.calculate_kuaiyun_cost(total_volume)
+                else:
+                    self.result_label.configure(text="无法识别快递", text_color="red")
+                    return
+
+                ws.append([now, self.delivery_combobox.get(), cost, product_type, count, total_length, total_width, total_height, total_volume])
+            wb.save(self.select_file)
+            self.result_label.configure(text="成功录入快递信息！", text_color="green")
+        except Exception as e:
+            self.result_label.configure(text=f"录入失败: {e}", text_color="red")
 
     def add_product_row(self):
         row_widgets = {}
@@ -171,7 +247,7 @@ class App(ctk.CTk):
                     total_height = divide * (height + 3)
                 else:
                     total_length = length
-                    total_width = divide * (width + 18)
+                    total_width = width + 18
                     total_height = divide * (height + 3) + height
                 total_volume = int(total_length * total_width * total_height)
             elif product_type == "圆孔垫板":
@@ -198,20 +274,20 @@ class App(ctk.CTk):
             over_per_kg_cost = 1
         elif self.province_combobox.get() in ["广东省", "安徽省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "江西省", "山西省", "福建省"]:
             first_3kg_cost = 8
-            over_per_kg_cost = 2
+            over_per_kg_cost = 2.5
         elif self.province_combobox.get() in ["广西壮族自治区", "海南省", "云南省", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省"]:
             first_3kg_cost = 9
-            over_per_kg_cost = 2.5
+            over_per_kg_cost = 3
         elif self.province_combobox.get() in ["陕西省", "甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
-            first_3kg_cost = 13
+            first_3kg_cost = 12
             over_per_kg_cost = 3
         
-        ship_cost = 0
+        ship_cost = 1 # 1 元保单费
         volume_weight = round(total_volume / 12000)
         if volume_weight <= 3:
-            ship_cost = first_3kg_cost
+            ship_cost += first_3kg_cost
         else:
-            ship_cost = first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
+            ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
 
         return round(ship_cost, 1)
 
@@ -220,6 +296,7 @@ class App(ctk.CTk):
         half_to_one_kg_cost = 0
         one_to_two_kg_cost = 0
         two_to_three_kg_cost = 0
+        first_3kg_cost = 0
         over_per_kg_cost = 0
         additional_cost = 0
         if self.province_combobox.get() in ["江苏省", "浙江省", "上海市", "安徽省"]:
@@ -227,6 +304,7 @@ class App(ctk.CTk):
             half_to_one_kg_cost = 2.8
             one_to_two_kg_cost = 3.7
             two_to_three_kg_cost = 5
+            first_3kg_cost = 5
             over_per_kg_cost = 1
             if self.province_combobox.get() == "上海市":
                 additional_cost = 1
@@ -235,6 +313,7 @@ class App(ctk.CTk):
             half_to_one_kg_cost = 2.8
             one_to_two_kg_cost = 3.7
             two_to_three_kg_cost = 5
+            first_3kg_cost = 5
             over_per_kg_cost = 2
             if self.province_combobox.get() == "北京市":
                 additional_cost = 1
@@ -243,12 +322,14 @@ class App(ctk.CTk):
             half_to_one_kg_cost = 2.8
             one_to_two_kg_cost = 3.7
             two_to_three_kg_cost = 5
+            first_3kg_cost = 5
             over_per_kg_cost = 3
         elif self.province_combobox.get() in ["内蒙古自治区", "宁夏回族自治区", "青海省", "甘肃省", "海南省"]:
             smaller_than_half_kg_cost = 3.5
             half_to_one_kg_cost = 4
             one_to_two_kg_cost = 8
             two_to_three_kg_cost = 12
+            first_3kg_cost = 12
             over_per_kg_cost = 4
 
         volume_weight = total_volume / 8000
@@ -263,7 +344,7 @@ class App(ctk.CTk):
             ship_cost += two_to_three_kg_cost
         else:
             volume_weight = math.ceil(volume_weight)
-            ship_cost = ship_cost + two_to_three_kg_cost + over_per_kg_cost * (volume_weight - 3)
+            ship_cost += ship_cost + first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
         return round(ship_cost, 1)
 
     def calculate_yunda_cost(self, total_volume):
@@ -272,31 +353,49 @@ class App(ctk.CTk):
         one_to_two_kg_cost = 0
         two_to_three_kg_cost = 0
         over_per_kg_cost = 0
-        first_kg_cost = 4
-        if self.province_combobox.get() in ["江苏省", "浙江省", "安徽省", "上海市"]:
+        first_3kg_cost = 0
+        if self.province_combobox.get() in ["江苏省", "浙江省", "安徽省"]:
             smaller_than_half_kg_cost = 2.5
-            half_to_one_kg_cost = 3
-            one_to_two_kg_cost = 3.7
-            two_to_three_kg_cost = 5
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.6
+            two_to_three_kg_cost = 4.6
+            first_3kg_cost = 4.6
             over_per_kg_cost = 1
-        elif self.province_combobox.get() in ["北京市", "河北省", "天津市", "河南省", "湖南省", "湖北省", "山东省", "广东省", "江西省", "福建省"]:
+        elif self.province_combobox.get() in ["河北省", "天津市", "河南省", "湖南省", "湖北省", "山东省", "广东省", "江西省", "福建省"]:
             smaller_than_half_kg_cost = 2.5
-            half_to_one_kg_cost = 3
-            one_to_two_kg_cost = 3.7
-            two_to_three_kg_cost = 5
-            over_per_kg_cost = 2.5
-        elif self.province_combobox.get() in ["山西省", "陕西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "吉林省", "辽宁省", ]:
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.6
+            two_to_three_kg_cost = 4.6
+            first_3kg_cost = 4.6
+            over_per_kg_cost = 2
+        elif self.province_combobox.get() in ["山西省", "陕西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
             smaller_than_half_kg_cost = 2.5
-            half_to_one_kg_cost = 3
-            one_to_two_kg_cost = 3.7
-            two_to_three_kg_cost = 5
-            over_per_kg_cost = 4
+            half_to_one_kg_cost = 2.8
+            one_to_two_kg_cost = 3.6
+            two_to_three_kg_cost = 4.6
+            first_3kg_cost = 4.6
+            over_per_kg_cost = 2.8
         elif self.province_combobox.get() in ["内蒙古自治区", "甘肃省", "青海省", "宁夏回族自治区", "海南省"]:
             smaller_than_half_kg_cost = 3.5
-            half_to_one_kg_cost = 5
-            one_to_two_kg_cost = 6
-            two_to_three_kg_cost = 6.5
-            over_per_kg_cost = 4.5
+            half_to_one_kg_cost = 3.8
+            one_to_two_kg_cost = 4.8
+            two_to_three_kg_cost = 5.8
+            first_3kg_cost = 5.8
+            over_per_kg_cost = 3.8
+        elif self.province_combobox.get() in ["北京市"]:
+            smaller_than_half_kg_cost = 3
+            half_to_one_kg_cost = 3.8
+            one_to_two_kg_cost = 4.8
+            two_to_three_kg_cost = 5.8
+            first_3kg_cost = 5.8
+            over_per_kg_cost = 3
+        elif self.province_combobox.get() in ["上海市"]:
+            smaller_than_half_kg_cost = 3
+            half_to_one_kg_cost = 3.8
+            one_to_two_kg_cost = 4.8
+            two_to_three_kg_cost = 5.8
+            first_3kg_cost = 5.8
+            over_per_kg_cost = 1.5
 
         ship_cost = 0
         volume_weight = total_volume / 8000
@@ -310,7 +409,7 @@ class App(ctk.CTk):
             ship_cost = two_to_three_kg_cost
         else:
             volume_weight = math.ceil(volume_weight)
-            ship_cost = first_kg_cost + over_per_kg_cost * (volume_weight - 1)
+            ship_cost = first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
         return round(ship_cost, 1)
 
     def calculate_youzheng_cost(self, total_volume):
@@ -414,11 +513,11 @@ class App(ctk.CTk):
             length = float(widgets['length'].get())
             width = float(widgets['width'].get())
             height = float(widgets['height'].get())
-            if total_length > 90 or total_width > 90 or total_height > 90:
+            if total_length > 100 or total_width > 100 or total_height > 100:
                 youzheng_fail = True
                 break
         if youzheng_fail:
-            youzheng_cost = "单边长度不能超过90cm，产品不符合尺寸要求"
+            youzheng_cost = "单边长度不能超过100cm，产品不符合尺寸要求"
         else:
             youzheng_cost = self.calculate_youzheng_cost(total_volume)
 
