@@ -22,6 +22,7 @@ class App(ctk.CTk):
         self.selected_file = None
         self.product_rows = []
         self.next_row = 3
+        self.notice_text = ""
 
         self.volume_strategies = {
             "网格川字": volume_strategy.WangGeChuanZiStrategy(),
@@ -33,11 +34,15 @@ class App(ctk.CTk):
 
         self.shipping_strategies = {
             "德邦": shipping_strategy.DebangShippingStrategy(),
-            "极兔": shipping_strategy.JituShippingStrategy(),
+            # "极兔": shipping_strategy.JituShippingStrategy(),
             "韵达": shipping_strategy.YundaShippingStrategy(),
-            "中通": shipping_strategy.ZhongtongShippingStrategy(),
-            "邮政": shipping_strategy.YouzhengShippingStrategy(),
-            "快运（顺心捷达/壹米滴答）": shipping_strategy.KuaiyunShippingStrategy(),
+            # "中通": shipping_strategy.ZhongtongShippingStrategy(),
+            "邮政-电商标快洪家": shipping_strategy.YouzhengDianShangShippingStrategy(),
+            "邮政-EMS洪家": shipping_strategy.YouzhengEmsShippingStrategy(),
+            "邮政-小包": shipping_strategy.YouzhengXiaoBaoShippingStrategy(),
+            "快运-顺心捷达": shipping_strategy.KuaiyunShunXinShippingStrategy(),
+            "快运-壹米滴答": shipping_strategy.KuaiyunYiMiShippingStrategy(),
+            "快运-韵达快运": shipping_strategy.KuaiyunYunDaShippingStrategy(),
         }
 
         self._build_ui()
@@ -69,11 +74,15 @@ class App(ctk.CTk):
 
         # 添加产品按钮
         add_btn = ctk.CTkButton(self.frame, text="添加新产品", font=ctk.CTkFont(size=16), command=self.add_product_row)
-        add_btn.grid(row=998, column=0, padx=10, pady=(10, 10), sticky="w")
+        add_btn.grid(row=997, column=0, padx=10, pady=(10, 10), sticky="w")
 
         # 快递费用显示标签
         self.shipping_cost_label = ctk.CTkLabel(self.frame, text="快递费用:", font=ctk.CTkFont(size=16), anchor="w", justify="left")
-        self.shipping_cost_label.grid(row=999, column=0, padx=10, pady=(35, 10), sticky="w")
+        self.shipping_cost_label.grid(row=998, column=0, padx=10, pady=(35, 0), sticky="w")
+
+        # 注意事项标签
+        self.notice_label = ctk.CTkLabel(self.frame, text="", font=ctk.CTkFont(size=20, weight="bold"), anchor="w", justify="left", text_color="red")
+        self.notice_label.grid(row=999, column=0, padx=10, pady=(10, 10), sticky="w")
 
         # 运费计算按钮
         calc_btn = ctk.CTkButton(self.frame, text="运费计算", font=ctk.CTkFont(size=16), command=self.calculate_shipping_cost)
@@ -213,6 +222,9 @@ class App(ctk.CTk):
 
         self.shipping_cost_label.configure(text="\n".join(text_lines), text_color="black")
 
+        self.notice_text = self.shipping_strategies[cheapest_name].notice_text
+        self.notice_label.configure(text=f"注意事项（需手动检查）: {self.notice_text}")
+
     def select_files(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
         if file_path:
@@ -234,7 +246,7 @@ class App(ctk.CTk):
                 ws = wb.active
 
             if ws.max_row == 1 and all(cell.value is None for cell in ws[1]):
-                ws.append(["录入时间", "快递", "快递价格(元)", "产品类型", "数量(个)", "长(cm)", "宽(cm)", "高(cm)", "总体积(cm³)"])
+                ws.append(["录入时间", "快递", "快递价格(元)", "产品类型", "数量(个)", "长(cm)", "宽(cm)", "高(cm)", "总体积(cm³)", "注意事项"])
 
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -250,7 +262,7 @@ class App(ctk.CTk):
                 count = float(row_widgets['count'].get())
                 cost = strategy.calculate(total_volume, self.province_combobox.get())
 
-                ws.append([now, delivery_name, cost, product_type, count, length, width, height, total_volume])
+                ws.append([now, delivery_name, cost, product_type, count, length, width, height, total_volume, self.notice_text])
 
             wb.save(self.selected_file)
             self.result_label.configure(text="成功录入快递信息！", text_color="green")
