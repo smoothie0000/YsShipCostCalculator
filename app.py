@@ -199,7 +199,7 @@ class App(ctk.CTk):
                 cost = strategy.calculate(total_volume, province)
                 costs[name] = cost
             except Exception as e:
-                costs[name] = f"不支持此省份"
+                costs[name] = e
 
         # 找最便宜的
         valid_costs = {k: v for k, v in costs.items() if isinstance(v, (int, float))}

@@ -209,7 +209,7 @@ class ZhongtongShippingStrategy(ShippingStrategy):
 
         return round(ship_cost, 1)
 
-# 邮政-电商标快洪家
+""" # 邮政-电商标快洪家
 class YouzhengDianShangShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
@@ -222,7 +222,7 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
         elif province in ["安徽省"]:
             first_kg_cost = 4
             over_per_kg_cost = 1.2
-        elif province == ["北京市", "天津市", "河北省", "山西省", "山东省", "福建省", "江西省", "河南省", "湖北省", "湖南省", "广东省"]:
+        elif province in ["北京市", "天津市", "河北省", "山西省", "山东省", "福建省", "江西省", "河南省", "湖北省", "湖南省", "广东省"]:
             first_kg_cost = 5
             over_per_kg_cost = 2
         elif province in ["辽宁省", "海南省", "四川省", "陕西省", "重庆市", "广西壮族自治区"]:
@@ -234,10 +234,10 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
         elif province in ["黑龙江省", "云南省"]:
             first_kg_cost = 8
             over_per_kg_cost = 4
-        elif province == ["青海省"]:
+        elif province in ["青海省"]:
             first_kg_cost = 16
             over_per_kg_cost = 18
-        elif province == ["西藏自治区", "新疆维吾尔自治区"]:
+        elif province in ["西藏自治区", "新疆维吾尔自治区"]:
             first_kg_cost = 18
             over_per_kg_cost = 21
         else:
@@ -248,6 +248,65 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
             return first_kg_cost
         else:
             return round(first_kg_cost + over_per_kg_cost * (volume_weight - 1), 1)
+"""
+
+# 邮政-电商标快洪家
+class YouzhengDianShangShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "三边不超过100cm，按照实际重量计算，限制20kg内, 单边不超过100cm，三边不超2.5米，实际重量不超20kg"
+
+    def calculate(self, total_volume, province):
+        if province in ["上海市", "江苏省"]:
+            first_kg_cost = 4
+            over_500g_cost = 0.5
+        elif province in ["安徽省"]:
+            first_kg_cost = 4
+            over_500g_cost = 0.6
+        elif province in ["北京市"]:
+            first_kg_cost = 4
+            over_500g_cost = 1
+        elif province in ["天津市", "河北省", "山西省", "福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "广东省"]:
+            first_kg_cost = 5
+            over_500g_cost = 1
+        elif province in ["陕西省"]:
+            first_kg_cost = 4
+            over_500g_cost = 1.5
+        elif province in ["云南省"]:
+            first_kg_cost = 4
+            over_500g_cost = 2
+        elif province in ["甘肃省", "宁夏回族自治区"]:
+            first_kg_cost = 4
+            over_500g_cost = 1.5
+        elif province in ["辽宁省", "广西壮族自治区", "海南省", "重庆市", "四川省", "贵州省"]:
+            first_kg_cost = 6
+            over_500g_cost = 1.5
+        elif province in ["内蒙古自治区", "吉林省"]:
+            first_kg_cost = 7
+            over_500g_cost = 1.5
+        elif province in ["青海省"]:
+            first_kg_cost = 16
+            over_500g_cost = 9
+        elif province in ["黑龙江省"]:
+            first_kg_cost = 8
+            over_500g_cost = 2
+        elif province in ["新疆维吾尔自治区"]:
+            first_kg_cost = 18
+            over_500g_cost = 10.5
+        elif province in ["西藏自治区"]:
+            first_kg_cost = 18
+            over_500g_cost = 10.5
+        elif province in ["浙江省"]:
+            first_kg_cost = 4
+            over_500g_cost = 0.5
+        else:
+            raise Exception(f"不支持 {province} 省份")
+
+        volume_weight = math.ceil(total_volume / 12000)
+        if volume_weight <= 1:
+            return first_kg_cost
+        else:
+            return round(first_kg_cost + over_500g_cost * math.ceil((volume_weight - 1) * 2), 1)
 
 # 邮政-EMS洪家
 class YouzhengEmsShippingStrategy(ShippingStrategy):
@@ -259,7 +318,7 @@ class YouzhengEmsShippingStrategy(ShippingStrategy):
         if province in ["上海市", "浙江省", "江苏省", "安徽省"]:
             first_kg_cost = 5
             over_per_kg_cost = 1
-        elif province == ["福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "天津市", "河北省", "山西省", "广东省"]:
+        elif province in ["福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "天津市", "河北省", "山西省", "广东省"]:
             first_kg_cost = 6.5
             over_per_kg_cost = 1.7
         elif province in ["北京市", "海南省", "山西省", "重庆市"]:
@@ -274,7 +333,7 @@ class YouzhengEmsShippingStrategy(ShippingStrategy):
         elif province in ["黑龙江省", "云南省"]:
             first_kg_cost = 10
             over_per_kg_cost = 4
-        elif province == ["西藏自治区", "新疆维吾尔自治区", "青海省"]:
+        elif province in ["西藏自治区", "新疆维吾尔自治区", "青海省"]:
             first_kg_cost = 18
             over_per_kg_cost = 21
         else:
