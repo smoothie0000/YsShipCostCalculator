@@ -27,7 +27,8 @@ class App(ctk.CTk):
         self.volume_strategies = {
             "网格川字": volume_strategy.WangGeChuanZiStrategy(),
             "网格九脚": volume_strategy.WangGeJiuJiaoStrategy(),
-            "平板四脚": volume_strategy.PingBanSiJiaoStrategy(),
+            "平板四脚": volume_strategy.PingBanSiLiuJiaoStrategy(),
+            "平板六脚": volume_strategy.PingBanSiLiuJiaoStrategy(),
             "平板九脚": volume_strategy.PingBanJiuJiaoStrategy(),
             "圆孔垫板": volume_strategy.YuanKongDianBanStrategy(),
         }
@@ -184,10 +185,12 @@ class App(ctk.CTk):
     def calculate_shipping_cost(self):
         province = self.province_combobox.get()
         total_volume = 0
+        total_length = 0
 
         for row_widgets in self.product_rows:
-            vol, _, _, _ = self.calculate_volume(row_widgets)
+            vol, length, width, height = self.calculate_volume(row_widgets)
             total_volume += vol
+            total_length = length + width + height
 
         if total_volume == 0:
             self.shipping_cost_label.configure(text="请先正确填写产品体积和数量", text_color="red")
@@ -196,10 +199,18 @@ class App(ctk.CTk):
         costs = {}
         for name, strategy in self.shipping_strategies.items():
             try:
-                cost = strategy.calculate(total_volume, province)
+                cost = strategy.calculate(total_volume, total_length, province)
                 costs[name] = cost
             except Exception as e:
                 costs[name] = e
+        
+        text_lines = ["快递费用:"]
+        for name in self.shipping_strategies.keys():
+            cost = costs.get(name, "无数据")
+            if isinstance(cost, (int, float)):
+                text_lines.append(f"{name}: {cost} 元")
+            else:
+                text_lines.append(f"{name}: {cost}")
 
         # 找最便宜的
         valid_costs = {k: v for k, v in costs.items() if isinstance(v, (int, float))}
@@ -209,14 +220,6 @@ class App(ctk.CTk):
         else:
             cheapest_name = None
             cheapest_cost = None
-
-        text_lines = ["快递费用:"]
-        for name in self.shipping_strategies.keys():
-            cost = costs.get(name, "无数据")
-            if isinstance(cost, (int, float)):
-                text_lines.append(f"{name}: {cost} 元")
-            else:
-                text_lines.append(f"{name}: {cost}")
         if cheapest_name:
             text_lines.append(f"\n最便宜为: {cheapest_name} {cheapest_cost} 元")
 
@@ -258,9 +261,10 @@ class App(ctk.CTk):
 
             for row_widgets in self.product_rows:
                 total_volume, length, width, height = self.calculate_volume(row_widgets)
+                total_length = length + width + height
                 product_type = row_widgets['product'].get() + " (多个不同规格产品一起邮寄，请手动检查体积是否正确)"
                 count = float(row_widgets['count'].get())
-                cost = strategy.calculate(total_volume, self.province_combobox.get())
+                cost = strategy.calculate(total_volume, total_length, self.province_combobox.get())
 
                 ws.append([now, delivery_name, cost, product_type, count, length, width, height, total_volume, self.notice_text])
 

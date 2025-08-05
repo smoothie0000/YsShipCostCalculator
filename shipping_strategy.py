@@ -21,7 +21,7 @@ class ShippingStrategy(ABC):
         self.notice_text = "无注意事项"
 
     @abstractmethod
-    def calculate(self, total_volume: float, province: str) -> float:
+    def calculate(self, total_volume: float, total_length: float, province: str) -> float:
         pass
 
 # 德邦
@@ -30,7 +30,7 @@ class DebangShippingStrategy(ShippingStrategy):
         super().__init__()
         self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
 
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         first_3kg_cost = 0
         over_per_kg_cost = 0
 
@@ -38,20 +38,20 @@ class DebangShippingStrategy(ShippingStrategy):
             first_3kg_cost = 8
             over_per_kg_cost = 1
         elif province in ["广东省", "安徽省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "江西省", "山西省", "福建省"]:
-            first_3kg_cost = 9
-            over_per_kg_cost = 2.5
-        elif province in ["广西壮族自治区", "海南省", "云南省", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省"]:
             first_3kg_cost = 10
-            over_per_kg_cost = 3
-        elif province in ["陕西省", "甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
-            first_3kg_cost = 13
-            over_per_kg_cost = 3
-        elif province in ["陕西省", "甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
-            first_3kg_cost = 13
+            over_per_kg_cost = 2
+        elif province in ["广西壮族自治区", "海南省", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省", "陕西省", ]:
+            first_3kg_cost = 10
+            over_per_kg_cost = 2.6
+        elif province in ["甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
+            first_3kg_cost = 12
             over_per_kg_cost = 3
         elif province in ["西藏自治区", "新疆维吾尔自治区"]:
-            first_3kg_cost = 28
+            first_3kg_cost = 27
             over_per_kg_cost = 8
+        elif province in ["云南省"]:
+            first_3kg_cost = 10
+            over_per_kg_cost = 3
         else:
             raise Exception(f"不支持 {province} 省份")
 
@@ -61,12 +61,16 @@ class DebangShippingStrategy(ShippingStrategy):
             ship_cost += first_3kg_cost
         else:
             ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
+        
+        if total_length > 200:
+            ship_cost += 20
+            self.notice_text = self.notice_text + "\n由于产品三边尺寸之和超过200cm\n额外增加20元运费"
 
         return round(ship_cost, 1)
 
 # 极兔
 class JituShippingStrategy(ShippingStrategy):
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         additional_cost = 0
         weight = total_volume / 8000
 
@@ -106,7 +110,7 @@ class JituShippingStrategy(ShippingStrategy):
 
 # 韵达 (洪家)
 class YundaShippingStrategy(ShippingStrategy):
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         weight = total_volume / 8000
 
         if province in ["江苏省", "浙江省", "安徽省"]:
@@ -146,7 +150,7 @@ class YundaShippingStrategy(ShippingStrategy):
 
 # 中通
 class ZhongtongShippingStrategy(ShippingStrategy):
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         # 初始化参数
         additional_cost = 0
         calculate_with_volume = False
@@ -215,7 +219,7 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
         super().__init__()
         self.notice_text = "三边不超过100cm，按照实际重量计算，限制20kg内, 单边不超过100cm，三边不超2.5米，实际重量不超20kg"
 
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         if province in ["上海市", "浙江省", "江苏省"]:
             first_kg_cost = 4
             over_per_kg_cost = 1
@@ -254,9 +258,9 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
 class YouzhengDianShangShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "三边不超过100cm，按照实际重量计算，限制20kg内, 单边不超过100cm，三边不超2.5米，实际重量不超20kg"
+        self.notice_text = "三边不超过100cm，按照实际重量计算\n限制20kg内, 单边不超过100cm\n三边不超2.5米，实际重量不超20kg"
 
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         if province in ["上海市", "江苏省"]:
             first_kg_cost = 4
             over_500g_cost = 0.5
@@ -312,9 +316,9 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
 class YouzhengEmsShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "单边不超过60cm的按照实际重量, 超过的按照计抛算法，且单边不超150CM，不超40KG"
+        self.notice_text = "单边不超过60cm的按照实际重量, 超过的按照计抛算法\n且单边不超150CM，不超40KG"
 
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         if province in ["上海市", "浙江省", "江苏省", "安徽省"]:
             first_kg_cost = 5
             over_per_kg_cost = 1
@@ -351,8 +355,13 @@ class YouzhengXiaoBaoShippingStrategy(ShippingStrategy):
         super().__init__()
         self.notice_text = "三边之和不超过90cm，实重"
 
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         weight = total_volume / 12000
+        if total_length > 90:
+            return "三边之和超过90cm，不考虑邮政-小包"
+        if weight > 3:
+            return "超过3kg，不考虑邮政-小包"
+
         if province in ["浙江省", "江苏省", "安徽省"]:
             cost_table = [1.7, 2.2, 3.3, 4.3]
             over_per_kg = 1
@@ -399,7 +408,7 @@ class YouzhengXiaoBaoShippingStrategy(ShippingStrategy):
 
 # 快运-顺心捷达
 class KuaiyunShunXinShippingStrategy(ShippingStrategy):
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         price_list = {
             "浙江省": [90, 25], "安徽省": [100, 30], "江苏省": [90, 25], "上海市": [100, 25],
             "福建省": [150, 35], "广东省": [150, 35], "江西省": [150, 35], "山东省": [150, 35],
@@ -423,7 +432,7 @@ class KuaiyunShunXinShippingStrategy(ShippingStrategy):
 
 # 快运-壹米滴答
 class KuaiyunYiMiShippingStrategy(ShippingStrategy):
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         price_list = {
             "浙江省": [90, 25], "安徽省": [100, 30], "江苏省": [90, 25], "上海市": [100, 25],
             "福建省": [145, 35], "广东省": [145, 35], "江西省": [145, 35], "山东省": [145, 35],
@@ -447,7 +456,7 @@ class KuaiyunYiMiShippingStrategy(ShippingStrategy):
 
 # 快运-韵达快运
 class KuaiyunYunDaShippingStrategy(ShippingStrategy):
-    def calculate(self, total_volume, province):
+    def calculate(self, total_volume, total_length, province):
         price_list = {
             "浙江省": [85, 25], "安徽省": [105, 30], "江苏省": [90, 25], "上海市": [100, 30],
             "福建省": [140, 35], "广东省": [140, 35], "江西省": [140, 35], "山东省": [140, 35],

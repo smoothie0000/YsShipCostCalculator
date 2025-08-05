@@ -60,8 +60,8 @@ class WangGeJiuJiaoStrategy(VolumeCalcStrategy):
         total_volume = int(total_length * total_width * total_height)
         return total_volume, total_length, total_width, total_height
 
-# 平板四脚
-class PingBanSiJiaoStrategy(VolumeCalcStrategy):
+# 平板四脚/平板六脚
+class PingBanSiLiuJiaoStrategy(VolumeCalcStrategy):
     def calculate(self, count, length, width, height):
         reminder = count % 2
         divide = math.floor(count / 2)
