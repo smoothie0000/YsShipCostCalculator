@@ -31,6 +31,7 @@ class DebangShippingStrategy(ShippingStrategy):
         self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
 
     def calculate(self, total_volume, total_length, province):
+        self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
         first_3kg_cost = 0
         over_per_kg_cost = 0
 
