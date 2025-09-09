@@ -63,9 +63,9 @@ class DebangShippingStrategy(ShippingStrategy):
         else:
             ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
         
-        if total_length > 200:
+        if total_length > 250:
             ship_cost += 20
-            self.notice_text = self.notice_text + "\n由于产品三边尺寸之和超过200cm\n额外增加20元运费"
+            self.notice_text = self.notice_text + "\n由于产品三边尺寸之和超过250cm\n额外增加20元运费"
 
         return round(ship_cost, 1)
 
@@ -326,7 +326,7 @@ class YouzhengEmsShippingStrategy(ShippingStrategy):
         elif province in ["福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "天津市", "河北省", "山西省", "广东省"]:
             first_kg_cost = 6.5
             over_per_kg_cost = 1.7
-        elif province in ["北京市", "海南省", "山西省", "重庆市"]:
+        elif province in ["北京市", "海南省", "陕西省", "重庆市"]:
             first_kg_cost = 6.5
             over_per_kg_cost = 2
         elif province in ["四川省", "辽宁省", "广西壮族自治区", "贵州省"]:
@@ -354,11 +354,11 @@ class YouzhengEmsShippingStrategy(ShippingStrategy):
 class YouzhengXiaoBaoShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "三边之和不超过90cm，实重"
+        self.notice_text = "三边之和不超过94cm，实重"
 
     def calculate(self, total_volume, total_length, province):
         weight = total_volume / 12000
-        if total_length > 90:
+        if total_length > 94:
             return "三边之和超过90cm，不考虑邮政-小包"
         if weight > 3:
             return "超过3kg，不考虑邮政-小包"
@@ -405,6 +405,50 @@ class YouzhengXiaoBaoShippingStrategy(ShippingStrategy):
             first_3kg_cost = 4
             cost = first_3kg_cost + over_per_kg * (math.ceil(weight) - 3)
 
+        return round(cost, 1)
+
+# 顺丰
+class ShunFengShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "高峰附加服务费：国庆节2025年10月1日-10月7日，\n双十一2025年10月21日-10月25日，11.1-11.5,11.11-11.15加1元/票，\n春节前2026年02月2号-02月15号，加1元/票，\n春节：2026年02月16号-02月24号，加3元/票"
+
+    def calculate(self, total_volume, total_length, province):
+        if province in ["浙江省"]:
+            first_kg_cost = 4.301
+            over_1kg_per_kg_cost = 1.3
+            first_3kg_cost = 8.001
+            over_3kg_per_3kg_cost = 1.8
+        elif province in ["上海市","福建省", "江苏省", "安徽省", "湖北省", "江西省"]:
+            first_kg_cost = 4.301
+            over_1kg_per_kg_cost = 1.3
+            first_3kg_cost = 8.001
+            over_3kg_per_3kg_cost = 1.8
+        elif province in ["甘肃省", "广西壮族自治区", "贵州省", "海南省", "辽宁省", "宁夏回族自治区", "陕西省", "山西省", "四川省", "重庆市", "内蒙古自治区", "山东省", "天津市", "北京市", "河南省", "湖南省", "河北省", "广东省"]:
+            first_kg_cost = 4.801
+            over_1kg_per_kg_cost = 1.8
+            first_3kg_cost = 10.001
+            over_3kg_per_3kg_cost = 2.8
+        elif province in ["黑龙江省", "云南省", "吉林省", "青海省"]:
+            first_kg_cost = 5.001
+            over_1kg_per_kg_cost = 2.5
+            first_3kg_cost = 10.001
+            over_3kg_per_3kg_cost = 2.8
+        elif province in ["新疆维吾尔自治区", ]:
+            first_kg_cost = 17.001
+            over_1kg_per_kg_cost = 10
+            first_3kg_cost = 37.001
+            over_3kg_per_3kg_cost = 10
+        else:
+            raise Exception(f"不支持 {province} 省份")
+
+        volume_weight = math.ceil(total_volume / 12000)
+        if volume_weight < 3:
+            cost = first_kg_cost + over_1kg_per_kg_cost * (volume_weight - 1)
+        else:
+            first_3kg_cost = 4
+            cost = first_3kg_cost + over_3kg_per_3kg_cost * (volume_weight - 3)
+        
         return round(cost, 1)
 
 # 快运-顺心捷达

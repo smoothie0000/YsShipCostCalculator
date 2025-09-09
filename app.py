@@ -40,10 +40,11 @@ class App(ctk.CTk):
             # "中通": shipping_strategy.ZhongtongShippingStrategy(),
             "邮政-电商标快洪家": shipping_strategy.YouzhengDianShangShippingStrategy(),
             "邮政-EMS洪家": shipping_strategy.YouzhengEmsShippingStrategy(),
-            "邮政-小包": shipping_strategy.YouzhengXiaoBaoShippingStrategy(),
+            # "邮政-小包": shipping_strategy.YouzhengXiaoBaoShippingStrategy(),
             "快运-顺心捷达": shipping_strategy.KuaiyunShunXinShippingStrategy(),
             "快运-壹米滴答": shipping_strategy.KuaiyunYiMiShippingStrategy(),
             "快运-韵达快运": shipping_strategy.KuaiyunYunDaShippingStrategy(),
+            "顺丰快递": shipping_strategy.ShunFengShippingStrategy(),
         }
 
         self._build_ui()
