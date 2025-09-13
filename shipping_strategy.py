@@ -14,6 +14,7 @@ __author__ = 'Weihan Zu'
 
 from abc import ABC, abstractmethod
 import math
+from decimal import Decimal, ROUND_HALF_UP
 
 class ShippingStrategy(ABC):
     def __init__(self):
@@ -413,6 +414,9 @@ class ShunFengShippingStrategy(ShippingStrategy):
         super().__init__()
         self.notice_text = "高峰附加服务费：国庆节2025年10月1日-10月7日，\n双十一2025年10月21日-10月25日，11.1-11.5,11.11-11.15加1元/票，\n春节前2026年02月2号-02月15号，加1元/票，\n春节：2026年02月16号-02月24号，加3元/票"
 
+    def round_half_up(self, value, ndigits=1):
+        return float(Decimal(str(value)).quantize(Decimal('0.' + '0'* (ndigits-1) + '1'), rounding=ROUND_HALF_UP))
+
     def calculate(self, total_volume, total_length, province):
         if province in ["浙江省"]:
             first_kg_cost = 4.301
@@ -434,7 +438,7 @@ class ShunFengShippingStrategy(ShippingStrategy):
             over_1kg_per_kg_cost = 2.5
             first_3kg_cost = 10.001
             over_3kg_per_3kg_cost = 2.8
-        elif province in ["新疆维吾尔自治区", ]:
+        elif province in ["新疆维吾尔自治区"]:
             first_kg_cost = 17.001
             over_1kg_per_kg_cost = 10
             first_3kg_cost = 37.001
@@ -442,11 +446,12 @@ class ShunFengShippingStrategy(ShippingStrategy):
         else:
             raise Exception(f"不支持 {province} 省份")
 
-        volume_weight = math.ceil(total_volume / 12000)
+        print(total_volume)
+        volume_weight = self.round_half_up(total_volume / 12000)
+        print(volume_weight)
         if volume_weight < 3:
             cost = first_kg_cost + over_1kg_per_kg_cost * (volume_weight - 1)
         else:
-            first_3kg_cost = 4
             cost = first_3kg_cost + over_3kg_per_3kg_cost * (volume_weight - 3)
         
         return round(cost, 1)
