@@ -116,23 +116,23 @@ class YundaShippingStrategy(ShippingStrategy):
         weight = total_volume / 8000
 
         if province in ["江苏省", "浙江省", "安徽省"]:
-            cost_table = [1.8, 2.2, 3.2, 4.6]
-            over_per_kg = 0.8
+            cost_table = [2.3, 2.7, 3.7, 4.7]
+            over_per_kg = 0.9
         elif province in ["河北省", "天津市", "河南省", "湖南省", "湖北省", "山东省", "广东省", "江西省", "福建省"]:
-            cost_table = [1.8, 2.2, 3.2, 4.6]
-            over_per_kg = 1.7
+            cost_table = [2.3, 2.7, 3.7, 4.7]
+            over_per_kg = 1.8
         elif province in ["山西省", "陕西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
-            cost_table = [1.8, 2.2, 3.2, 4.6]
-            over_per_kg = 2.1
+            cost_table = [2.3, 2.7, 3.7, 4.7]
+            over_per_kg = 2.2
         elif province in ["内蒙古自治区", "甘肃省", "青海省", "宁夏回族自治区", "海南省"]:
-            cost_table = [3.2, 3.3, 4.7, 5.7]
-            over_per_kg = 3.1
+            cost_table = [3.7, 3.8, 5.2, 6.2]
+            over_per_kg = 3.2
         elif province == "北京市":
-            cost_table = [3, 3.5, 4.5, 5.5]
-            over_per_kg = 3
+            cost_table = [3.5, 4, 5, 6]
+            over_per_kg = 3.1
         elif province == "上海市":
-            cost_table = [3, 3.5, 4.5, 5.5]
-            over_per_kg = 1.5
+            cost_table = [3.5, 4, 5, 6]
+            over_per_kg = 1.6
         else:
             raise Exception(f"不支持 {province} 省份")
 
@@ -145,8 +145,8 @@ class YundaShippingStrategy(ShippingStrategy):
         elif weight <= 3:
             cost = cost_table[3]
         else:
-            first_3kg_cost = 4
-            cost = first_3kg_cost + over_per_kg * (math.ceil(weight) - 3)
+            first_kg_cost = 4
+            cost = first_kg_cost + over_per_kg * (weight - 1)
 
         return round(cost, 1)
 

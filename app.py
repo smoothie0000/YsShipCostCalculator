@@ -3,6 +3,7 @@ from datetime import datetime
 from tkinter import filedialog
 import customtkinter as ctk
 from openpyxl import load_workbook, Workbook
+from openpyxl.styles import Alignment
 
 import constants
 import volume_strategy
@@ -249,6 +250,7 @@ class App(ctk.CTk):
                 wb = load_workbook(self.selected_file)
                 ws = wb.active
 
+            ws.alignment = Alignment(wrap_text=True)
             if ws.max_row == 1 and all(cell.value is None for cell in ws[1]):
                 ws.append(["录入时间", "快递", "快递价格(元)", "产品类型", "数量(个)", "长(cm)", "宽(cm)", "高(cm)", "总体积(cm³)", "注意事项"])
 
@@ -260,6 +262,13 @@ class App(ctk.CTk):
                 self.result_label.configure(text="无法识别快递", text_color="red")
                 return
 
+            excel_cost = ''
+            excel_product_type = ''
+            excel_count = ''
+            excel_length = ''
+            excel_width = ''
+            excel_height = ''
+            excel_total_volume = ''
             for row_widgets in self.product_rows:
                 total_volume, length, width, height = self.calculate_volume(row_widgets)
                 total_length = length + width + height
@@ -267,7 +276,22 @@ class App(ctk.CTk):
                 count = float(row_widgets['count'].get())
                 cost = strategy.calculate(total_volume, total_length, self.province_combobox.get())
 
-                ws.append([now, delivery_name, cost, product_type, count, length, width, height, total_volume, self.notice_text])
+                excel_cost = str(cost) if excel_cost == '' else excel_cost + '\n' + str(cost)
+                excel_product_type = str(product_type) if excel_product_type == '' else excel_product_type + '\n' + str(product_type)
+                excel_count = str(count) if excel_count == '' else excel_count + '\n' + str(count)
+                excel_length = str(length) if excel_length == '' else excel_length + '\n' + str(length)
+                excel_width = str(width) if excel_width == '' else excel_width + '\n' + str(width)
+                excel_height = str(height) if excel_height == '' else excel_height + '\n' + str(height)
+                excel_total_volume = str(total_volume) if excel_total_volume == '' else excel_total_volume + '\n' + str(total_volume)
+
+            ws.append([now, delivery_name, excel_cost, excel_product_type, excel_count, excel_length, excel_width, excel_height, excel_total_volume, self.notice_text])
+            ws['C' + str(ws.max_row)].alignment = Alignment(wrapText=True)
+            ws['D' + str(ws.max_row)].alignment = Alignment(wrapText=True)
+            ws['E' + str(ws.max_row)].alignment = Alignment(wrapText=True)
+            ws['F' + str(ws.max_row)].alignment = Alignment(wrapText=True)
+            ws['G' + str(ws.max_row)].alignment = Alignment(wrapText=True)
+            ws['H' + str(ws.max_row)].alignment = Alignment(wrapText=True)
+            ws['I' + str(ws.max_row)].alignment = Alignment(wrapText=True)
 
             wb.save(self.selected_file)
             self.result_label.configure(text="成功录入快递信息！", text_color="green")
