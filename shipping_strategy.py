@@ -37,22 +37,22 @@ class DebangShippingStrategy(ShippingStrategy):
         over_per_kg_cost = 0
 
         if province in ["江苏省", "浙江省", "上海市"]:
-            first_3kg_cost = 8
+            first_3kg_cost = 9
             over_per_kg_cost = 1
         elif province in ["广东省", "安徽省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "江西省", "山西省", "福建省"]:
-            first_3kg_cost = 10
-            over_per_kg_cost = 2
+            first_3kg_cost = 11
+            over_per_kg_cost = 1.8
         elif province in ["广西壮族自治区", "海南省", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省", "陕西省", ]:
-            first_3kg_cost = 10
+            first_3kg_cost = 11
             over_per_kg_cost = 2.6
         elif province in ["甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
-            first_3kg_cost = 12
+            first_3kg_cost = 13
             over_per_kg_cost = 3
         elif province in ["西藏自治区", "新疆维吾尔自治区"]:
-            first_3kg_cost = 27
-            over_per_kg_cost = 8
+            first_3kg_cost = 29
+            over_per_kg_cost = 12
         elif province in ["云南省"]:
-            first_3kg_cost = 10
+            first_3kg_cost = 12
             over_per_kg_cost = 3
         else:
             raise Exception(f"不支持 {province} 省份")
