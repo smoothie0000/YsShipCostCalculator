@@ -70,9 +70,9 @@ class DebangShippingStrategy(ShippingStrategy):
         else:
             ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
         
-        if total_length > 250:
-            ship_cost += 20
-            self.notice_text = self.notice_text + "\n由于产品三边尺寸之和超过250cm\n额外增加20元运费"
+        # if total_length > 250:
+        #     ship_cost += 20
+        #     self.notice_text = self.notice_text + "\n由于产品三边尺寸之和超过250cm\n额外增加20元运费"
 
         return round(ship_cost, 1)
 
