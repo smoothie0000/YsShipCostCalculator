@@ -168,7 +168,7 @@ class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
         additional_cost = 0
         cost_table = [0, 0, 0, 0]
         over_per_kg_cost = 0
-        first_kg_cost = 3
+        over_3kg_fixed_cost = 3
 
         if province in ["江苏省", "浙江省", "安徽省"]:
             cost_table = [1.8, 2.8, 4.3, 5.3]
@@ -178,7 +178,7 @@ class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
             over_per_kg_cost = 2
         elif province in ["山西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
             cost_table = [1.8, 2.8, 4.3, 5.3]
-            over_per_kg_cost = 1
+            over_per_kg_cost = 3
         elif province in ["内蒙古自治区", "甘肃省", "青海省", "宁夏回族自治区", "海南省"]:
             cost_table = [3.8, 4.8, 8, 12]
             over_per_kg_cost = 5
@@ -208,9 +208,9 @@ class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
         elif volume_weight <= 3:
             ship_cost += cost_table[3]
         elif volume_weight > 3:
-            ship_cost += round(first_kg_cost + over_per_kg_cost * (volume_weight - 1), 1)
+            ship_cost += over_3kg_fixed_cost + over_per_kg_cost * (math.ceil(volume_weight))
 
-        return round(ship_cost, 1)
+        return ship_cost
 
 """ # 邮政-电商标快洪家
 class YouzhengDianShangShippingStrategy(ShippingStrategy):
