@@ -156,53 +156,48 @@ class YundaShippingStrategy(ShippingStrategy):
 
         return round(cost, 1)
 
-# 中通
-class ZhongtongShippingStrategy(ShippingStrategy):
+# 中通快递
+class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "单边不超过1.5米，单票重量不超50kg实重"
+
     def calculate(self, total_volume, total_length, province):
         # 初始化参数
+        self.notice_text = "单边不超过1.5米，单票重量不超50kg实重"
         additional_cost = 0
-        calculate_with_volume = False
-        price_per_square_meter = 0
-        price_calculate_with_volume_fixed = 0
         cost_table = [0, 0, 0, 0]
         over_per_kg_cost = 0
-        first_3kg_cost = 0
+        first_kg_cost = 3
 
         if province in ["江苏省", "浙江省", "安徽省"]:
-            cost_table = [2.3, 2.8, 3.5, 5]
-            over_per_kg_cost = 1.5
-            first_3kg_cost = 5
-        elif province in ["河北省", "天津市", "河南省", "湖南省", "湖北省", "山东省", "广东省", "江西省", "福建省"]:
-            cost_table = [2.3, 2.8, 3.5, 5]
-            calculate_with_volume = True
-            price_per_square_meter = 150
-            price_calculate_with_volume_fixed = 5
-        elif province in ["山西省", "陕西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
-            cost_table = [2.3, 2.8, 3.5, 5]
-            calculate_with_volume = True
-            price_per_square_meter = 150
-            price_calculate_with_volume_fixed = 5
+            cost_table = [1.8, 2.8, 4.3, 5.3]
+            over_per_kg_cost = 1
+        elif province in ["福建省", "河南省", "江西省", "湖北省", "山东省", "广东省", "陕西省", "河北省", "天津市", "湖南省"]:
+            cost_table = [1.8, 2.8, 4.3, 5.3]
+            over_per_kg_cost = 2
+        elif province in ["山西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
+            cost_table = [1.8, 2.8, 4.3, 5.3]
+            over_per_kg_cost = 1
         elif province in ["内蒙古自治区", "甘肃省", "青海省", "宁夏回族自治区", "海南省"]:
-            cost_table = [3.5, 4, 5, 6]
-            calculate_with_volume = True
-            price_per_square_meter = 500
-            price_calculate_with_volume_fixed = 0
+            cost_table = [3.8, 4.8, 8, 12]
+            over_per_kg_cost = 5
+        elif province in ["西藏自治区", "新疆维吾尔自治区"]:
+            cost_table = [15, 15, 30, 45]
+            over_per_kg_cost = 15
         elif province == "北京市":
-            cost_table = [3, 4, 5, 6.5]
-            additional_cost = 1.5
-            calculate_with_volume = True
-            price_per_square_meter = 150
-            price_calculate_with_volume_fixed = 5.5
+            cost_table = [1.8, 2.8, 4.3, 5.3]
+            over_per_kg_cost = 3
+            additional_cost = 1
         elif province == "上海市":
-            cost_table = [3, 4, 5, 5.5]
+            cost_table = [1.8, 2.8, 4.3, 5.3]
+            over_per_kg_cost = 2
             additional_cost = 0.5
-            over_per_kg_cost = 1.5
-            first_3kg_cost = 5.5
         else:
             raise Exception(f"不支持 {province} 省份")
 
         ship_cost = additional_cost
-        volume_weight = total_volume / 10000
+        volume_weight = total_volume / 11000
 
         if volume_weight <= 0.5:
             ship_cost += cost_table[0]
@@ -212,12 +207,8 @@ class ZhongtongShippingStrategy(ShippingStrategy):
             ship_cost += cost_table[2]
         elif volume_weight <= 3:
             ship_cost += cost_table[3]
-        elif volume_weight > 3 and calculate_with_volume:
-            # 特殊体积计费
-            ship_cost += price_calculate_with_volume_fixed + price_per_square_meter * math.ceil(volume_weight) / 100
-        else:
-            # 普通超重计费
-            ship_cost += first_3kg_cost + over_per_kg_cost * (math.ceil(volume_weight) - 3)
+        elif volume_weight > 3:
+            ship_cost += round(first_kg_cost + over_per_kg_cost * (volume_weight - 1), 1)
 
         return round(ship_cost, 1)
 
@@ -517,7 +508,31 @@ class KuaiyunYunDaShippingStrategy(ShippingStrategy):
             "浙江省": [85, 25], "安徽省": [105, 30], "江苏省": [90, 25], "上海市": [100, 30],
             "福建省": [140, 35], "广东省": [140, 35], "江西省": [140, 35], "山东省": [140, 35],
             "北京市": [210, 40], "天津市": [140, 35], "河北省": [140, 35], "河南省": [140, 35],
-            "湖北省": [140, 35], "湖南省": [140, 35], "重庆市": [210, 40], "四川省": [210, 40],
+            "湖北省": [140, 35], "湖南省": [140, 35], "重庆市": [200, 75], "四川省": [200, 75],
+            "贵州省": [200, 75], "山西省": [200, 75], "陕西省": [200, 75], "广西壮族自治区": [200, 75],
+            "辽宁省": [200, 75], "云南省": [260, 75], "黑龙江省": [200, 75], "吉林省": [200, 75],
+            "甘肃省": [500, 210], "宁夏回族自治区": [500, 150], "海南省": [500, 150], "青海省": [500, 210],
+            "内蒙古自治区": [500, 150], "新疆维吾尔自治区": [800, 240], "西藏自治区": [800, 240],
+        }
+
+        if province not in price_list or price_list[province][0] == -1:
+            raise Exception(f"{province} 不支持快运发货")
+
+        per_cube_meter_cost, start_cost = price_list[province]
+        volume_m3 = total_volume / 1000000
+        cost = per_cube_meter_cost * volume_m3
+        if cost < start_cost:
+            return round(start_cost, 1)
+        return round(cost, 1)
+
+# 中通快运
+class ZhongTongKuaiYunShippingStrategy(ShippingStrategy):
+    def calculate(self, total_volume, total_length, province):
+        price_list = {
+            "浙江省": [90, 35], "安徽省": [90, 35], "江苏省": [100, 35], "上海市": [90, 35],
+            "福建省": [125, 45], "广东省": [125, 45], "江西省": [125, 45], "山东省": [125, 45],
+            "北京市": [160, 75], "天津市": [125, 45], "河北省": [125, 45], "河南省": [125, 45],
+            "湖北省": [125, 45], "湖南省": [125, 45], "重庆市": [210, 40], "四川省": [210, 40],
             "贵州省": [210, 40], "山西省": [210, 40], "陕西省": [210, 40], "广西壮族自治区": [210, 40],
             "辽宁省": [260, 55], "云南省": [260, 55], "黑龙江省": [260, 55], "吉林省": [260, 55],
             "甘肃省": [400, 100], "宁夏回族自治区": [400, 100], "海南省": [400, 100], "青海省": [400, 100],
