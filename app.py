@@ -35,7 +35,7 @@ class App(ctk.CTk):
         }
 
         self.shipping_strategies = {
-            # "德邦": shipping_strategy.DebangShippingStrategy(),
+            "德邦": shipping_strategy.DebangShippingStrategy(),
             # "极兔": shipping_strategy.JituShippingStrategy(),
             "韵达": shipping_strategy.YundaShippingStrategy(),
             "邮政-电商标快洪家": shipping_strategy.YouzhengDianShangShippingStrategy(),
