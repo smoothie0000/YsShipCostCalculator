@@ -35,6 +35,7 @@ class DebangShippingStrategy(ShippingStrategy):
         self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
         first_3kg_cost = 0
         over_per_kg_cost = 0
+        extra_cost = 1.5
 
         if province in ["江苏省", "浙江省", "上海市"]:
             first_3kg_cost = 9
@@ -66,9 +67,9 @@ class DebangShippingStrategy(ShippingStrategy):
         ship_cost = 0
         volume_weight = round(total_volume / 12000, 1)
         if volume_weight <= 3:
-            ship_cost += first_3kg_cost
+            ship_cost += first_3kg_cost + extra_cost
         else:
-            ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3)
+            ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3) + extra_cost
         
         # if total_length > 250:
         #     ship_cost += 20
