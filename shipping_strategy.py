@@ -198,7 +198,7 @@ class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
             raise Exception(f"不支持 {province} 省份")
 
         ship_cost = additional_cost
-        volume_weight = total_volume / 8000
+        volume_weight = total_volume / 10000
 
         if volume_weight <= 0.5:
             ship_cost += cost_table[0]
