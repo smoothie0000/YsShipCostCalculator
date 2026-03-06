@@ -174,10 +174,10 @@ class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
         if province in ["江苏省", "浙江省", "安徽省"]:
             cost_table = [1.8, 2.8, 4.3, 5.3]
             over_per_kg_cost = 1
-        elif province in ["福建省", "河南省", "江西省", "湖北省", "山东省", "广东省", "陕西省", "河北省", "天津市", "湖南省"]:
+        elif province in ["福建省", "河南省", "江西省", "湖北省", "山东省", "广东省", "河北省", "天津市", "湖南省"]:
             cost_table = [1.8, 2.8, 4.3, 5.3]
             over_per_kg_cost = 2
-        elif province in ["山西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省"]:
+        elif province in ["山西省", "广西壮族自治区", "四川省", "重庆市", "贵州省", "云南省", "黑龙江省", "辽宁省", "吉林省", "陕西省"]:
             cost_table = [1.8, 2.8, 4.3, 5.3]
             over_per_kg_cost = 3
         elif province in ["内蒙古自治区", "甘肃省", "青海省", "宁夏回族自治区", "海南省"]:
