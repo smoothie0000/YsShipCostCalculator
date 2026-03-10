@@ -29,7 +29,7 @@ class ShippingStrategy(ABC):
 class DebangShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
+        self.notice_text = "单票实际重量不能超过50kg，超过打子母单，实际重量不能超120kg"
 
     def calculate(self, total_volume, total_length, province):
         self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
@@ -119,6 +119,10 @@ class JituShippingStrategy(ShippingStrategy):
 
 # 韵达 (洪家)
 class YundaShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "三边之和不大于90CM"
+
     def calculate(self, total_volume, total_length, province):
         weight = total_volume / 8000
 
@@ -408,10 +412,6 @@ class YouzhengXiaoBaoShippingStrategy(ShippingStrategy):
 
 # 顺丰
 class ShunFengShippingStrategy(ShippingStrategy):
-    def __init__(self):
-        super().__init__()
-        self.notice_text = "高峰附加服务费：国庆节2025年10月1日-10月7日，\n双十一2025年10月21日-10月25日，11.1-11.5,11.11-11.15加1元/票，\n春节前2026年02月2号-02月15号，加1元/票，\n春节：2026年02月16号-02月24号，加3元/票"
-
     def round_half_up(self, value, ndigits=1):
         return float(Decimal(str(value)).quantize(Decimal('0.' + '0'* (ndigits-1) + '1'), rounding=ROUND_HALF_UP))
 
@@ -483,7 +483,7 @@ class KuaiyunYiMiShippingStrategy(ShippingStrategy):
     def calculate(self, total_volume, total_length, province):
         volume_m3 = total_volume / 1000000
         price_list = {}
-        if volume_m3 < 0.6:
+        if volume_m3 < 0.5:
             price_list = {
                 "浙江省": [85, 25], "安徽省": [100, 30], "江苏省": [90, 25], "上海市": [100, 25],
                 "福建省": [140, 35], "广东省": [140, 35], "江西省": [140, 35], "山东省": [140, 35],
@@ -496,10 +496,10 @@ class KuaiyunYiMiShippingStrategy(ShippingStrategy):
             }
         else:
             price_list = {
-                "浙江省": [85, 25], "安徽省": [90, 30], "江苏省": [90, 25], "上海市": [90, 25],
-                "福建省": [125, 35], "广东省": [125, 35], "江西省": [125, 35], "山东省": [125, 35],
-                "北京市": [160, 40], "天津市": [125, 35], "河北省": [125, 35], "河南省": [125, 35],
-                "湖北省": [125, 35], "湖南省": [125, 35], "重庆市": [210, 35], "四川省": [210, 40],
+                "浙江省": [84, 25], "安徽省": [89, 30], "江苏省": [89, 25], "上海市": [89, 25],
+                "福建省": [124, 35], "广东省": [124, 35], "江西省": [124, 35], "山东省": [124, 35],
+                "北京市": [159, 40], "天津市": [124, 35], "河北省": [124, 35], "河南省": [124, 35],
+                "湖北省": [124, 35], "湖南省": [124, 35], "重庆市": [210, 35], "四川省": [210, 40],
                 "贵州省": [210, 40], "山西省": [210, 35], "陕西省": [200, 35], "广西壮族自治区": [210, 40],
                 "辽宁省": [223, 40], "云南省": [253, 40], "黑龙江省": [228, 40], "吉林省": [223, 35],
                 "甘肃省": [380, 50], "宁夏回族自治区": [380, 50], "海南省": [500, 50], "青海省": [480, 50],
