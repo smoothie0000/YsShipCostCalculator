@@ -419,14 +419,19 @@ class ShunFengShippingStrategy(ShippingStrategy):
         if province in ["浙江省"]:
             first_kg_cost = 4.301
             over_1kg_per_kg_cost = 1.3
-            first_3kg_cost = 8.001
+            first_3kg_cost = 7.501
             over_3kg_per_3kg_cost = 1.8
         elif province in ["上海市","福建省", "江苏省", "安徽省", "湖北省", "江西省"]:
             first_kg_cost = 4.301
             over_1kg_per_kg_cost = 1.3
-            first_3kg_cost = 8.001
+            first_3kg_cost = 7.501
             over_3kg_per_3kg_cost = 1.8
-        elif province in ["甘肃省", "广西壮族自治区", "贵州省", "海南省", "辽宁省", "宁夏回族自治区", "陕西省", "山西省", "四川省", "重庆市", "内蒙古自治区", "山东省", "天津市", "北京市", "河南省", "湖南省", "河北省", "广东省"]:
+        elif province in ["湖南省", "山东省", "河南省", "广东省", "天津市", "河北省", "四川省", "北京市", "重庆市", "陕西省"]:
+            first_kg_cost = 4.801
+            over_1kg_per_kg_cost = 1.8
+            first_3kg_cost = 9.501
+            over_3kg_per_3kg_cost = 2.8
+        elif province in ["海南省", "山西省", "内蒙古自治区", "辽宁省", "甘肃省", "贵州省", "宁夏回族自治区", "广西壮族自治区"]:
             first_kg_cost = 4.801
             over_1kg_per_kg_cost = 1.8
             first_3kg_cost = 10.001
@@ -436,7 +441,7 @@ class ShunFengShippingStrategy(ShippingStrategy):
             over_1kg_per_kg_cost = 2.5
             first_3kg_cost = 10.001
             over_3kg_per_3kg_cost = 2.8
-        elif province in ["新疆维吾尔自治区"]:
+        elif province in ["新疆维吾尔自治区", "西藏自治区"]:
             first_kg_cost = 17.001
             over_1kg_per_kg_cost = 10
             first_3kg_cost = 37.001
