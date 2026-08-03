@@ -449,9 +449,7 @@ class ShunFengShippingStrategy(ShippingStrategy):
         else:
             raise Exception(f"不支持 {province} 省份")
 
-        print(total_volume)
         volume_weight = self.round_half_up(total_volume / 12000)
-        print(volume_weight)
         if volume_weight < 3:
             cost = first_kg_cost + over_1kg_per_kg_cost * (volume_weight - 1)
         else:
@@ -568,5 +566,34 @@ class ZhongTongKuaiYunShippingStrategy(ShippingStrategy):
         if cost < start_cost:
             return round(start_cost, 1)
         return round(cost, 1)
+
+# 顺丰大件
+class ShunFengDaJianShippingStrategy(ShippingStrategy):
+    def calculate(self, total_volume, total_length, province):
+        price_list = {
+            "浙江省": [30, 1], "上海市": [30, 1], "江苏省": [30, 1], "安徽省": [38, 1.4],
+            "福建省": [38, 1.4], "江西省": [38, 1.4], "湖北省": [38, 1.4], "湖南省": [38, 1.4],
+            "广东省": [38, 1.4], "山东省": [38, 1.4], "河南省": [38, 1.4], "天津市": [43, 1.5],
+            "河北省": [43, 1.5], "北京市": [43, 1.5], "重庆市": [53, 2.4], "陕西省": [53, 2.4],
+            "广西壮族自治区": [53, 2.4], "山西省": [53, 2.4], "海南省": [58, 2.7], "贵州省": [53, 2.4],
+            "四川省": [53, 2.4],  "辽宁省": [55, 2.5], "宁夏回族自治区": [58, 2.7], "甘肃省": [58, 2.7], 
+            "内蒙古自治区": [58, 2.7],  "云南省": [53, 2.4], "吉林省": [55, 2.5], "青海省": [58, 2.7],
+            "黑龙江省": [58, 2.7], "新疆维吾尔自治区": [130, 4]
+        }
+
+        if province not in price_list or price_list[province][0] == -1:
+            raise Exception(f"{province} 不支持快运发货")
+
+        first_20kg_cost, over_20kg_cost = price_list[province]
+        volume_weight = math.ceil(total_volume / 12000)
+
+        cost = 0
+        if volume_weight <= 20:
+            cost = first_20kg_cost
+        else:
+            cost = first_20kg_cost + (volume_weight - 20) * over_20kg_cost
+            cost = round(cost, 1)
+        return cost
+
 
 #---------------------------------------------------------------------------------------------------------------------#
