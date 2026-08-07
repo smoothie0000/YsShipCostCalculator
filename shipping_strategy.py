@@ -37,7 +37,10 @@ class DebangShippingStrategy(ShippingStrategy):
         over_per_kg_cost = 0
         extra_cost = 0 # 1.5
 
-        if province in ["江苏省", "浙江省", "上海市"]:
+        if province in ["浙江省"]:
+            first_3kg_cost = 9
+            over_per_kg_cost = 1
+        elif province in ["江苏省", "上海市"]:
             first_3kg_cost = 10.5
             over_per_kg_cost = 1
         elif province in ["广东省", "安徽省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "江西省", "山西省", "福建省"]:
