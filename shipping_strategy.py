@@ -419,35 +419,35 @@ class ShunFengShippingStrategy(ShippingStrategy):
         return float(Decimal(str(value)).quantize(Decimal('0.' + '0'* (ndigits-1) + '1'), rounding=ROUND_HALF_UP))
 
     def calculate(self, total_volume, total_length, province):
-        if province in ["浙江省"]:
-            first_kg_cost = 4.301
-            over_1kg_per_kg_cost = 1.3
-            first_3kg_cost = 7.501
+        if province in ["浙江省", "上海市", "江苏省", "安徽省"]:
+            first_kg_cost = 4.3
+            over_1kg_per_kg_cost = 1.1
+            first_3kg_cost = 7.5
+            over_3kg_per_3kg_cost = 1.2
+        elif province in ["福建省", "湖北省", "江西省", "广东省"]:
+            first_kg_cost = 4.3
+            over_1kg_per_kg_cost = 1.1
+            first_3kg_cost = 7.5
             over_3kg_per_3kg_cost = 1.8
-        elif province in ["上海市","福建省", "江苏省", "安徽省", "湖北省", "江西省"]:
-            first_kg_cost = 4.301
-            over_1kg_per_kg_cost = 1.3
-            first_3kg_cost = 7.501
-            over_3kg_per_3kg_cost = 1.8
-        elif province in ["湖南省", "山东省", "河南省", "广东省", "天津市", "河北省", "四川省", "北京市", "重庆市", "陕西省"]:
-            first_kg_cost = 4.801
-            over_1kg_per_kg_cost = 1.8
-            first_3kg_cost = 9.501
+        elif province in ["湖南省", "山东省", "河南省", "天津市", "河北省", "四川省", "北京市", "重庆市", "陕西省"]:
+            first_kg_cost = 4.8
+            over_1kg_per_kg_cost = 1.5
+            first_3kg_cost = 9.5
             over_3kg_per_3kg_cost = 2.8
         elif province in ["海南省", "山西省", "内蒙古自治区", "辽宁省", "甘肃省", "贵州省", "宁夏回族自治区", "广西壮族自治区"]:
-            first_kg_cost = 4.801
+            first_kg_cost = 4.8
             over_1kg_per_kg_cost = 1.8
-            first_3kg_cost = 10.001
+            first_3kg_cost = 10
             over_3kg_per_3kg_cost = 2.8
         elif province in ["黑龙江省", "云南省", "吉林省", "青海省"]:
-            first_kg_cost = 5.001
+            first_kg_cost = 5
             over_1kg_per_kg_cost = 2.5
-            first_3kg_cost = 10.001
+            first_3kg_cost = 10
             over_3kg_per_3kg_cost = 2.8
         elif province in ["新疆维吾尔自治区", "西藏自治区"]:
-            first_kg_cost = 17.001
+            first_kg_cost = 17
             over_1kg_per_kg_cost = 10
-            first_3kg_cost = 37.001
+            first_3kg_cost = 37
             over_3kg_per_3kg_cost = 10
         else:
             raise Exception(f"不支持 {province} 省份")
