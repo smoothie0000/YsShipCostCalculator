@@ -19,7 +19,7 @@ from decimal import Decimal, ROUND_HALF_UP
 class ShippingStrategy(ABC):
     def __init__(self):
         super().__init__()
-        self.notice_text = "无注意事项"
+        self.notice_text = "\n无注意事项"
 
     @abstractmethod
     def calculate(self, total_volume: float, total_length: float, province: str) -> float:
@@ -29,10 +29,9 @@ class ShippingStrategy(ABC):
 class DebangShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "单票实际重量不能超过50kg，超过打子母单，实际重量不能超120kg"
+        self.notice_text = "\n单票实际重量不能超过60kg，\n子母单不能超过120kg"
 
     def calculate(self, total_volume, total_length, province):
-        self.notice_text = "单票实际重量不能超过50kg，超过打子母单"
         first_3kg_cost = 0
         over_per_kg_cost = 0
         extra_cost = 0 # 1.5
@@ -73,10 +72,6 @@ class DebangShippingStrategy(ShippingStrategy):
             ship_cost += first_3kg_cost + extra_cost
         else:
             ship_cost += first_3kg_cost + over_per_kg_cost * (volume_weight - 3) + extra_cost
-        
-        # if total_length > 250:
-        #     ship_cost += 20
-        #     self.notice_text = self.notice_text + "\n由于产品三边尺寸之和超过250cm\n额外增加20元运费"
 
         return round(ship_cost, 1)
 
@@ -124,7 +119,7 @@ class JituShippingStrategy(ShippingStrategy):
 class YundaShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "三边之和不大于90CM"
+        self.notice_text = "\n三边之和不大于90CM"
 
     def calculate(self, total_volume, total_length, province):
         weight = total_volume / 8000
@@ -168,11 +163,10 @@ class YundaShippingStrategy(ShippingStrategy):
 class ZhongTongKuaiDiShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "单边不超过1.5米，单票重量不超50kg实重"
+        self.notice_text = "\n单边不超过1.5米,\n单票不超过50kg实重"
 
     def calculate(self, total_volume, total_length, province):
         # 初始化参数
-        self.notice_text = "单边不超过1.5米，单票重量不超50kg实重"
         additional_cost = 0
         cost_table = [0, 0, 0, 0]
         over_per_kg_cost = 0
@@ -265,7 +259,7 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
 class YouzhengDianShangShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "三边不超过100cm，按照实际重量计算\n限制20kg内, 单边不超过100cm\n三边不超2.5米，实际重量不超20kg"
+        self.notice_text = "\n三边不超过100cm，按照实际重量计算\n限制20kg内, 单边不超过100cm\n三边不超2.5米，实际重量不超20kg"
 
     def calculate(self, total_volume, total_length, province):
         if province in ["上海市", "江苏省"]:
@@ -323,7 +317,7 @@ class YouzhengDianShangShippingStrategy(ShippingStrategy):
 class YouzhengEmsShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "单边不超过60cm的按照实际重量, 超过的按照计抛算法\n且单边不超150CM，不超40KG"
+        self.notice_text = "\n单边不超过60cm的按照实际重量,\n超过的按照计抛算法\n且单边不超150CM，不超40KG"
 
     def calculate(self, total_volume, total_length, province):
         if province in ["上海市", "浙江省", "江苏省", "安徽省"]:
@@ -360,7 +354,7 @@ class YouzhengEmsShippingStrategy(ShippingStrategy):
 class YouzhengXiaoBaoShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()
-        self.notice_text = "三边之和不超过94cm，实重"
+        self.notice_text = "\n三边之和不超过94cm，实重"
 
     def calculate(self, total_volume, total_length, province):
         weight = total_volume / 12000
@@ -486,6 +480,10 @@ class KuaiyunShunXinShippingStrategy(ShippingStrategy):
 
 # 快运-壹米滴答
 class KuaiyunYiMiShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "\n打包高度不超过2.1米"
+
     def calculate(self, total_volume, total_length, province):
         volume_m3 = total_volume / 1000000
         # price_list = {}
@@ -524,6 +522,10 @@ class KuaiyunYiMiShippingStrategy(ShippingStrategy):
 
 # 快运-韵达快运
 class KuaiyunYunDaShippingStrategy(ShippingStrategy):
+    def __init__(self):
+            super().__init__()
+            self.notice_text = "\n三边之和不超过90cm"
+
     def calculate(self, total_volume, total_length, province):
         price_list = {
             "浙江省": [85, 25], "安徽省": [105, 30], "江苏省": [90, 25], "上海市": [100, 30],
@@ -572,6 +574,10 @@ class ZhongTongKuaiYunShippingStrategy(ShippingStrategy):
 
 # 顺丰大件
 class ShunFengDaJianShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "\n注意打包高度不超1.5米，\n单票产品实重不超300KG\n（拉开重量，不接近300KG）"
+
     def calculate(self, total_volume, total_length, province):
         price_list = {
             "浙江省": [30, 1], "上海市": [30, 1], "江苏省": [30, 1], "安徽省": [38, 1.4],
