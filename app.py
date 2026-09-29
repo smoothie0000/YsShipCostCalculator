@@ -32,6 +32,24 @@ class App(ctk.CTk):
             "平板六脚": volume_strategy.PingBanSiLiuJiaoStrategy(),
             "平板九脚": volume_strategy.PingBanJiuJiaoStrategy(),
             "圆孔垫板": volume_strategy.YuanKongDianBanStrategy(),
+            "3333防渗漏垫板": volume_strategy.FangShenLou3333Strategy(),
+            "4545防渗漏垫板": volume_strategy.FangShenLou4545Strategy(),
+            "6636防渗漏垫板": volume_strategy.FangShenLou6636Strategy(),
+            "5060防渗漏五脚款": volume_strategy.FangShenLou5060Strategy(),
+            "6767防渗漏托盘": volume_strategy.FangShenLou6767Strategy(),
+            "8242防渗漏托盘": volume_strategy.FangShenLou8242Strategy(),
+            "1206-10防渗漏托盘": volume_strategy.FangShenLou1206_10Strategy(),
+            "1206-17防渗漏托盘": volume_strategy.FangShenLou1206_17Strategy(),
+            "1210-17防渗漏托盘": volume_strategy.FangShenLou1210_17Strategy(),
+            "1212-10防渗漏托盘": volume_strategy.FangShenLou1212_10Strategy(),
+            "1212-17防渗漏托盘": volume_strategy.FangShenLou1212_17Strategy(),
+            "1368-15防渗漏托盘": volume_strategy.FangShenLou1368_15Strategy(),
+            "1368-17防渗漏托盘": volume_strategy.FangShenLou1368_17Strategy(),
+            "1368-30防渗漏托盘": volume_strategy.FangShenLou1368_30Strategy(),
+            "1313-15防渗漏托盘": volume_strategy.FangShenLou1313_15Strategy(),
+            "1313-17防渗漏托盘": volume_strategy.FangShenLou1313_17Strategy(),
+            "1313-30防渗漏托盘": volume_strategy.FangShenLou1313_30Strategy(),
+            "1311-30防渗漏托盘": volume_strategy.FangShenLou1311_30Strategy(),
         }
 
         self.shipping_strategies = {
@@ -183,8 +201,15 @@ class App(ctk.CTk):
             row_widgets['volume'].configure(text=f"{total_length} * {total_width} * {total_height} = {total_volume} cm³")
             return total_volume, total_length, total_width, total_height
         except Exception as e:
-            row_widgets['volume'].configure(text="输入有误")
-            return 0, 0, 0, 0
+            product_type = row_widgets['product'].get()
+            if "防渗漏" in product_type :
+                count = int(row_widgets['count'].get())
+                total_volume, total_length, total_width, total_height = self.volume_strategies[product_type].calculate(count)
+                row_widgets['volume'].configure(text=f"{total_length} * {total_width} * {total_height} = {total_volume} cm³")
+                return total_volume, total_length, total_width, total_height
+            else:
+                row_widgets['volume'].configure(text="输入有误")
+                return 0, 0, 0, 0
 
     def calculate_shipping_cost(self):
         province = self.province_combobox.get()
