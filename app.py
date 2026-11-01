@@ -35,7 +35,7 @@ class App(ctk.CTk):
             "3333防渗漏垫板": volume_strategy.FangShenLou3333Strategy(),
             "4545防渗漏垫板": volume_strategy.FangShenLou4545Strategy(),
             "6636防渗漏垫板": volume_strategy.FangShenLou6636Strategy(),
-            "5060防渗漏五脚款": volume_strategy.FangShenLou5060Strategy(),
+            "6060防渗漏五脚款": volume_strategy.FangShenLou6060Strategy(),
             "6767防渗漏托盘": volume_strategy.FangShenLou6767Strategy(),
             "8242防渗漏托盘": volume_strategy.FangShenLou8242Strategy(),
             "1206-10防渗漏托盘": volume_strategy.FangShenLou1206_10Strategy(),
@@ -60,12 +60,12 @@ class App(ctk.CTk):
             # "邮政-EMS洪家": shipping_strategy.YouzhengEmsShippingStrategy(),
             # "邮政-小包": shipping_strategy.YouzhengXiaoBaoShippingStrategy(),
             # "快运-顺心捷达": shipping_strategy.KuaiyunShunXinShippingStrategy(),
-            # "中通快运": shipping_strategy.ZhongTongKuaiYunShippingStrategy(),
+            "快运-中通快运": shipping_strategy.ZhongTongKuaiYunShippingStrategy(),
             "快运-壹米滴答": shipping_strategy.KuaiyunYiMiShippingStrategy(),
             # "快运-韵达快运": shipping_strategy.KuaiyunYunDaShippingStrategy(),
             "顺丰快递": shipping_strategy.ShunFengShippingStrategy(),
             "中通快递": shipping_strategy.ZhongTongKuaiDiShippingStrategy(),
-            "顺丰大件": shipping_strategy.ShunFengDaJianShippingStrategy(),
+            "快运-顺丰大件": shipping_strategy.ShunFengDaJianShippingStrategy(),
         }
 
         self._build_ui()

@@ -40,29 +40,29 @@ class DebangShippingStrategy(ShippingStrategy):
             first_3kg_cost = 9
             over_per_kg_cost = 1
         elif province in ["江苏省", "上海市"]:
-            first_3kg_cost = 10.5
+            first_3kg_cost = 9
             over_per_kg_cost = 1
-        elif province in ["广东省", "安徽省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "江西省", "山西省", "福建省"]:
-            first_3kg_cost = 12.5
+        elif province in ["安徽省", "江西省", "福建省"]:
+            first_3kg_cost = 10
+            over_per_kg_cost = 1.6
+        elif province in ["广东省", "山东省",  "北京市", "天津市", "河北省", "河南省", "湖北省", "湖南省", "山西省"]:
+            first_3kg_cost = 10
             over_per_kg_cost = 2
-        elif province in ["海南省", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省"]:
-            first_3kg_cost = 14.5
-            over_per_kg_cost = 2.6
-        elif province in ["广西壮族自治区", "陕西省"]:
-            first_3kg_cost = 12.5
-            over_per_kg_cost = 2.6
-        elif province in ["宁夏回族自治区", "青海省", "内蒙古自治区"]:
-            first_3kg_cost = 22.5
-            over_per_kg_cost = 3
-        elif province in ["西藏自治区", "新疆维吾尔自治区"]:
-            first_3kg_cost = 31
-            over_per_kg_cost = 12
+        elif province in ["海南省"]:
+            first_3kg_cost = 11
+            over_per_kg_cost = 2.8
         elif province in ["云南省"]:
-            first_3kg_cost = 15.5
-            over_per_kg_cost = 2.6
-        elif province in ["甘肃省"]:
-            first_3kg_cost = 22.5
-            over_per_kg_cost = 2.6
+            first_3kg_cost = 10
+            over_per_kg_cost = 2.8
+        elif province in ["广西壮族自治区", "贵州省", "四川省", "重庆市", "黑龙江省", "吉林省", "辽宁省", "陕西省"]:
+            first_3kg_cost = 10
+            over_per_kg_cost = 2.5
+        elif province in ["甘肃省", "宁夏回族自治区", "青海省", "内蒙古自治区"]:
+            first_3kg_cost = 11
+            over_per_kg_cost = 2.8
+        elif province in ["西藏自治区", "新疆维吾尔自治区"]:
+            first_3kg_cost = 25
+            over_per_kg_cost = 8
         else:
             raise Exception(f"不支持 {province} 省份")
 
@@ -548,18 +548,22 @@ class KuaiyunYunDaShippingStrategy(ShippingStrategy):
             return round(start_cost, 1)
         return round(cost, 1)
 
-# 中通快运
+# 快运-中通快运
 class ZhongTongKuaiYunShippingStrategy(ShippingStrategy):
+    def __init__(self):
+        super().__init__()
+        self.notice_text = "打包高度不超2.1米\n注意实重问题"
+
     def calculate(self, total_volume, total_length, province):
         price_list = {
-            "浙江省": [90, 25], "安徽省": [90, 30], "江苏省": [100, 25], "上海市": [90, 25],
-            "福建省": [125, 35], "广东省": [125, 35], "江西省": [125, 35], "山东省": [125, 35],
-            "北京市": [160, 40], "天津市": [125, 35], "河北省": [125, 35], "河南省": [125, 35],
-            "湖北省": [125, 35], "湖南省": [125, 35], "重庆市": [200, 35], "四川省": [200, 40],
-            "贵州省": [200, 40], "山西省": [200, 35], "陕西省": [200, 35], "广西壮族自治区": [200, 40],
-            "辽宁省": [200, 40], "云南省": [260, 40], "黑龙江省": [200, 40], "吉林省": [200, 35],
-            "甘肃省": [500, 50], "宁夏回族自治区": [500, 50], "海南省": [500, 50], "青海省": [500, 50],
-            "内蒙古自治区": [500, 50], "新疆维吾尔自治区": [800, 100], "西藏自治区": [800, 100],
+            "浙江省": [70, 25], "江苏省": [70, 25], "上海市": [70, 25], "安徽省": [80, 30],
+            "福建省": [105, 35], "广东省": [105, 35], "江西省": [105, 35], "山东省": [105, 35],
+            "河南省": [105, 35], "湖北省": [105, 35], "湖南省": [105, 35], "河北省": [120, 35],
+            "北京市": [135, 40], "天津市": [135, 40], "重庆市": [170, 40], "四川省": [170, 40],
+            "贵州省": [170, 40], "山西省": [170, 40], "陕西省": [170, 40], "广西壮族自治区": [170, 40],
+            "辽宁省": [170, 40], "云南省": [170, 40], "黑龙江省": [170, 40], "吉林省": [170, 40],
+            "甘肃省": [490, 50], "宁夏回族自治区": [490, 50], "海南省": [490, 50], "青海省": [490, 50],
+            "内蒙古自治区": [490, 50], "新疆维吾尔自治区": [790, 100], "西藏自治区": [790, 100],
         }
 
         if province not in price_list or price_list[province][0] == -1:
@@ -572,7 +576,7 @@ class ZhongTongKuaiYunShippingStrategy(ShippingStrategy):
             return round(start_cost, 1)
         return round(cost, 1)
 
-# 顺丰大件
+# 快运-顺丰大件
 class ShunFengDaJianShippingStrategy(ShippingStrategy):
     def __init__(self):
         super().__init__()

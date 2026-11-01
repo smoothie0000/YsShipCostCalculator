@@ -142,7 +142,7 @@ class FangShenLou6636Strategy(VolumeCalcStrategy):
         total_volume = int(total_length * total_width * total_height)
         return total_volume, total_length, total_width, total_height
 
-class FangShenLou5060Strategy(VolumeCalcStrategy):
+class FangShenLou6060Strategy(VolumeCalcStrategy):
     def calculate(self, count, length = 0, width = 0, height = 0):
         total_length = 60
         total_width = 60
