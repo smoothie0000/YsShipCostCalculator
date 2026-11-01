@@ -67,7 +67,7 @@ class DebangShippingStrategy(ShippingStrategy):
             raise Exception(f"不支持 {province} 省份")
 
         ship_cost = 0
-        volume_weight = round(total_volume / 12000, 1)
+        volume_weight = round(total_volume / 12000)
         if volume_weight <= 3:
             ship_cost += first_3kg_cost + extra_cost
         else:
