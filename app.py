@@ -60,7 +60,7 @@ class App(ctk.CTk):
             # "邮政-EMS洪家": shipping_strategy.YouzhengEmsShippingStrategy(),
             # "邮政-小包": shipping_strategy.YouzhengXiaoBaoShippingStrategy(),
             # "快运-顺心捷达": shipping_strategy.KuaiyunShunXinShippingStrategy(),
-            "快运-中通快运": shipping_strategy.ZhongTongKuaiYunShippingStrategy(),
+            # "快运-中通快运": shipping_strategy.ZhongTongKuaiYunShippingStrategy(),
             "快运-壹米滴答": shipping_strategy.KuaiyunYiMiShippingStrategy(),
             # "快运-韵达快运": shipping_strategy.KuaiyunYunDaShippingStrategy(),
             "顺丰快递": shipping_strategy.ShunFengShippingStrategy(),
